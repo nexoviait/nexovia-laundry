@@ -1,0 +1,70 @@
+<?php
+
+use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminCustomerController;
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminReportController;
+use App\Http\Controllers\Admin\AdminServiceAreaController;
+use App\Http\Controllers\Admin\AdminServiceController;
+use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\AdminTimeSlotController;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    // FR-ADM-001: admin login (guest only).
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [AdminAuthController::class, 'create'])->name('login');
+        Route::post('/login', [AdminAuthController::class, 'store'])->name('login.store');
+    });
+
+    // Shared by any staff role signed into this web app (admin or shop).
+    Route::middleware('auth')->post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
+
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        // FR-ADM-002/019: order board with live alert queue.
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        // FR-ADM-003: manual order entry.
+        Route::get('/orders/new', [AdminOrderController::class, 'create'])->name('orders.create');
+        Route::post('/orders', [AdminOrderController::class, 'storeManual'])->name('orders.store');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+        // FR-ADM-004/021: confirm + set/change pickup time + assign driver.
+        Route::post('/orders/{order}/confirm', [AdminOrderController::class, 'confirm'])->name('orders.confirm');
+        Route::post('/orders/{order}/time-slot', [AdminOrderController::class, 'updateTimeSlot'])->name('orders.time-slot');
+        Route::post('/orders/{order}/assign-driver', [AdminOrderController::class, 'assignDriver'])->name('orders.assign-driver');
+        // FR-ADM-022: internal + customer-visible notes.
+        Route::post('/orders/{order}/notes', [AdminOrderController::class, 'addNote'])->name('orders.notes.store');
+        // FR-ADM-010: cancellations/adjustments with reasons.
+        Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
+        Route::post('/orders/{order}/adjust', [AdminOrderController::class, 'adjust'])->name('orders.adjust');
+
+        // FR-ADM-005: dynamic item/price management.
+        Route::get('/services', [AdminServiceController::class, 'index'])->name('services.index');
+        Route::post('/services', [AdminServiceController::class, 'store'])->name('services.store');
+        Route::put('/services/{service}', [AdminServiceController::class, 'update'])->name('services.update');
+        Route::delete('/services/{service}', [AdminServiceController::class, 'destroy'])->name('services.destroy');
+
+        // FR-ADM-006: time slots.
+        Route::get('/time-slots', [AdminTimeSlotController::class, 'index'])->name('time-slots.index');
+        Route::post('/time-slots', [AdminTimeSlotController::class, 'store'])->name('time-slots.store');
+        Route::put('/time-slots/{timeSlot}', [AdminTimeSlotController::class, 'update'])->name('time-slots.update');
+        Route::delete('/time-slots/{timeSlot}', [AdminTimeSlotController::class, 'destroy'])->name('time-slots.destroy');
+
+        // FR-ADM-007: service areas + activate/deactivate.
+        Route::get('/service-areas', [AdminServiceAreaController::class, 'index'])->name('service-areas.index');
+        Route::post('/service-areas', [AdminServiceAreaController::class, 'store'])->name('service-areas.store');
+        Route::put('/service-areas/{serviceArea}', [AdminServiceAreaController::class, 'update'])->name('service-areas.update');
+        Route::post('/service-areas/{serviceArea}/toggle', [AdminServiceAreaController::class, 'toggle'])->name('service-areas.toggle');
+
+        // FR-ADM-008: customer list.
+        Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+        Route::get('/customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');
+
+        // FR-ADM-009: daily report + CSV export.
+        Route::get('/reports/daily', [AdminReportController::class, 'daily'])->name('reports.daily');
+        Route::get('/reports/daily/export', [AdminReportController::class, 'exportCsv'])->name('reports.daily.export');
+
+        // FR-SET-001/002/003: currency, business profile, VAT, delivery charges.
+        Route::get('/settings', [AdminSettingController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+    });
+});
