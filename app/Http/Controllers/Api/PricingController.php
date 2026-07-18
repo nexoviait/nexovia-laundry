@@ -17,11 +17,12 @@ class PricingController extends Controller
     public function estimate(Request $request)
     {
         $data = $request->validate([
+            'address_id' => ['nullable', 'integer', 'exists:addresses,id'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.service_id' => ['required', 'integer'],
             'items.*.qty' => ['required', 'numeric', 'min:0.01'],
         ]);
 
-        return response()->json($this->pricing->priceLines($data['items']));
+        return response()->json($this->pricing->priceLines($data['items'], $data['address_id'] ?? null));
     }
 }

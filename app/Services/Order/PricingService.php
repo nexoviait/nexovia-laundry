@@ -16,9 +16,10 @@ class PricingService
 {
     /**
      * @param  array<int, array{service_id: int, qty: float|int}>  $lines
+     * @param  int|null $addressId
      * @return array{items: array<int, array<string, mixed>>, subtotal: float, delivery_fee: float, vat: float, total: float}
      */
-    public function priceLines(array $lines): array
+    public function priceLines(array $lines, ?int $addressId = null): array
     {
         $serviceIds = array_column($lines, 'service_id');
 
@@ -56,7 +57,18 @@ class PricingService
 
         $subtotal = round($subtotal, 2);
         $vatRate = (float) (Setting::query()->where('key', 'vat_rate')->value('value') ?? 0);
-        $deliveryFee = (float) (Setting::query()->where('key', 'delivery_fee')->value('value') ?? 0);
+        
+        $deliveryFee = null;
+        if ($addressId) {
+            $address = \App\Models\Address::find($addressId);
+            if ($address && $address->serviceArea && $address->serviceArea->delivery_charge !== null) {
+                $deliveryFee = (float) $address->serviceArea->delivery_charge;
+            }
+        }
+        if ($deliveryFee === null) {
+            $deliveryFee = (float) (Setting::query()->where('key', 'delivery_fee')->value('value') ?? 0);
+        }
+
         $vat = round($subtotal * $vatRate / 100, 2);
         $total = round($subtotal + $deliveryFee + $vat, 2);
 

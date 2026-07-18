@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('phone')->nullable()->unique();
             $table->string('role')->default('customer'); // customer, driver, shop, admin
             $table->string('language')->default('en');
+            $table->string('push_token')->nullable(); // Expo push token (FR-CUS push notification handling)
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable(); // null for OTP-only customer accounts
             $table->rememberToken();

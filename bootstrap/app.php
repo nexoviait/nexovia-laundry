@@ -20,7 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
 
-        $middleware->redirectGuestsTo('/admin/login');
+        $middleware->redirectGuestsTo(fn (\Illuminate\Http\Request $request) => 
+            $request->is('admin*') || $request->is('shop*') ? '/admin/login' : '/login'
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\DriverTaskController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OtpAuthController;
 use App\Http\Controllers\Api\PricingController;
+use App\Http\Controllers\Api\PublicContentController;
+use App\Http\Controllers\Api\PublicSettingController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\TimeSlotController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +27,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
+        Route::post('/me/push-token', [AuthController::class, 'registerPushToken']);
 
         // Admin-only config management (build order step 2)
         Route::middleware('role:admin')->prefix('admin')->group(function () {
@@ -32,7 +35,7 @@ Route::prefix('v1')->group(function () {
         });
 
         // Customer booking (build order step 3)
-        Route::middleware('role:customer')->group(function () {
+        Route::middleware('role:customer,business_client')->group(function () {
             // REQ-CUST-03: saved addresses, area-gated (REQ-CUST-02).
             Route::apiResource('addresses', AddressController::class);
 
@@ -45,6 +48,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders/{order}', [OrderController::class, 'show']);
             Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
             Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice']);
+            // REQ-CUST-11: star rating after delivery.
+            Route::post('/orders/{order}/rating', [OrderController::class, 'rate']);
         });
 
         // Order lifecycle — shared by customer (read), admin (transition) (build order step 4)
@@ -70,4 +75,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/services', [ServiceController::class, 'index']);
     // REQ-CUST-07: bookable time slots with live capacity.
     Route::get('/time-slots', [TimeSlotController::class, 'index']);
+    // FR-CUS-027: currency + basic business info for the customer app.
+    Route::get('/settings/public', [PublicSettingController::class, 'show']);
+    // REQ-ADM-08: active banners and CMS pages for the customer app.
+    Route::get('/banners', [PublicContentController::class, 'banners']);
+    Route::get('/cms-pages/{slug}', [PublicContentController::class, 'cmsPage']);
 });

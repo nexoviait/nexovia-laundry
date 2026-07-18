@@ -35,6 +35,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $settingsPlucked = collect();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                $settingsPlucked = \App\Models\Setting::pluck('value', 'key');
+            }
+        } catch (\Throwable $e) {
+            // Fallback
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -48,6 +57,17 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+            ],
+            'settings' => [
+                'currency' => $settingsPlucked->get('currency', 'GBP'),
+                'vat_rate' => $settingsPlucked->get('vat_rate', '0'),
+                'delivery_fee' => $settingsPlucked->get('delivery_fee', '0'),
+                'business_name' => $settingsPlucked->get('business_name', 'CQ Clean Laundry'),
+                'business_phone' => $settingsPlucked->get('business_phone', ''),
+                'business_email' => $settingsPlucked->get('business_email', ''),
+                'business_address' => $settingsPlucked->get('business_address', ''),
+                'opening_hours' => $settingsPlucked->get('opening_hours', ''),
+                'business_logo' => $settingsPlucked->get('business_logo', ''),
             ],
         ];
     }

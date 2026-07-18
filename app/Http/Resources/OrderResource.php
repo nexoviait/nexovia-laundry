@@ -26,6 +26,7 @@ class OrderResource extends JsonResource
             'invoice' => new InvoiceResource($this->whenLoaded('invoice')),
             'status_histories' => StatusHistoryResource::collection($this->whenLoaded('statusHistories')),
             'notes' => OrderNoteResource::collection($this->whenLoaded('notes')),
+            'rating' => new RatingResource($this->whenLoaded('rating')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -13,7 +13,7 @@ class AdminServiceAreaController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('ServiceAreas/Index', [
+        return Inertia::render('Admin/ServiceAreas/Index', [
             'serviceAreas' => ServiceArea::query()->orderBy('name')->get(),
         ]);
     }
@@ -22,7 +22,9 @@ class AdminServiceAreaController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'country' => ['required', 'string', 'max:255'],
             'postcode' => ['required', 'string', 'max:10'],
+            'delivery_charge' => ['nullable', 'numeric', 'min:0'],
             'active' => ['boolean'],
         ]);
 
@@ -35,7 +37,9 @@ class AdminServiceAreaController extends Controller
     {
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
+            'country' => ['sometimes', 'string', 'max:255'],
             'postcode' => ['sometimes', 'string', 'max:10'],
+            'delivery_charge' => ['nullable', 'numeric', 'min:0'],
             'active' => ['sometimes', 'boolean'],
         ]);
 
@@ -49,5 +53,12 @@ class AdminServiceAreaController extends Controller
         $serviceArea->update(['active' => ! $serviceArea->active]);
 
         return back()->with('success', $serviceArea->active ? 'Service area activated.' : 'Service area deactivated.');
+    }
+
+    public function destroy(ServiceArea $serviceArea)
+    {
+        $serviceArea->delete();
+
+        return back()->with('success', 'Service area deleted.');
     }
 }

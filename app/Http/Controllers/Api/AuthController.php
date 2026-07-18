@@ -53,4 +53,19 @@ class AuthController extends Controller
     {
         return new UserResource($request->user());
     }
+
+    /**
+     * Registers the device's Expo push token so a real push provider can
+     * later be wired in behind the existing PushGateway stub.
+     */
+    public function registerPushToken(Request $request)
+    {
+        $data = $request->validate([
+            'push_token' => ['required', 'string', 'max:255'],
+        ]);
+
+        $request->user()->update(['push_token' => $data['push_token']]);
+
+        return response()->json(['message' => 'Push token registered.']);
+    }
 }

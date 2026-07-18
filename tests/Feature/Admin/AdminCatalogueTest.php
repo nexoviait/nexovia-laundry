@@ -75,7 +75,7 @@ class AdminCatalogueTest extends TestCase
         $response = $this->actingAs($this->admin)->get('/admin/customers?search=Alice');
 
         $response->assertOk()->assertInertia(fn ($page) => $page
-            ->component('Customers/Index')
+            ->component('Admin/Customers/Index')
             ->has('customers.data', 1)
             ->where('customers.data.0.orders_count', 1)
         );
@@ -90,9 +90,24 @@ class AdminCatalogueTest extends TestCase
         $this->actingAs($this->admin)->get("/admin/customers/{$customer->id}")
             ->assertOk()
             ->assertInertia(fn ($page) => $page
-                ->component('Customers/Show')
+                ->component('Admin/Customers/Show')
                 ->has('addresses', 1)
                 ->has('orders', 1)
+            );
+    }
+
+    public function test_admin_can_view_revenue_analytics(): void
+    {
+        $response = $this->actingAs($this->admin)->get('/admin/reports/revenue');
+
+        $response->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Admin/Reports/Revenue')
+                ->has('summary.total_revenue')
+                ->has('summary.total_invoices')
+                ->has('summary.avg_order_value')
+                ->has('summary.pending_settlements')
+                ->has('branch_stats')
             );
     }
 }

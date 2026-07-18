@@ -13,7 +13,7 @@ class AdminServiceController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Services/Index', [
+        return Inertia::render('Admin/Services/Index', [
             'services' => Service::query()->orderBy('name')->get(),
         ]);
     }
@@ -22,11 +22,16 @@ class AdminServiceController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:255'],
             'unit' => ['required', 'string', 'in:item,kg'],
             'price' => ['required', 'numeric', 'min:0'],
+            'express_price' => ['nullable', 'numeric', 'min:0'],
             'tat' => ['nullable', 'string', 'max:50'],
+            'express_tat' => ['nullable', 'string', 'max:50'],
             'active' => ['boolean'],
         ]);
+
+        $data['category'] = $data['category'] ?? 'Standard';
 
         Service::create($data);
 
@@ -37,9 +42,12 @@ class AdminServiceController extends Controller
     {
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:255'],
             'unit' => ['sometimes', 'string', 'in:item,kg'],
             'price' => ['sometimes', 'numeric', 'min:0'],
+            'express_price' => ['nullable', 'numeric', 'min:0'],
             'tat' => ['nullable', 'string', 'max:50'],
+            'express_tat' => ['nullable', 'string', 'max:50'],
             'active' => ['sometimes', 'boolean'],
         ]);
 

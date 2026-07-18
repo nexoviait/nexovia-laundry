@@ -29,6 +29,10 @@ This document describes the core domain model for the Nexovia Laundry applicatio
 - Relationships:
   - 1 time slot belongs to 1 `Service area`
   - 1 order is assigned to 1 time slot
+  - user can see all time slots in their service area
+  - user can book any time slot in their service area
+  - user can cancel any time slot in their service area
+  - user can reschedule any time slot in their service area
 
 ### Package purchase
 - Attributes: `plan`, `balance`, `expiry date`

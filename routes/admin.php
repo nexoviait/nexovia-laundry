@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminBannerController;
+use App\Http\Controllers\Admin\AdminCmsPageController;
 use App\Http\Controllers\Admin\AdminCustomerController;
+use App\Http\Controllers\Admin\AdminLeadController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminServiceAreaController;
@@ -36,6 +39,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // FR-ADM-010: cancellations/adjustments with reasons.
         Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
         Route::post('/orders/{order}/adjust', [AdminOrderController::class, 'adjust'])->name('orders.adjust');
+        Route::post('/orders/{order}/transition', [AdminOrderController::class, 'transitionStatus'])->name('orders.transition');
 
         // FR-ADM-005: dynamic item/price management.
         Route::get('/services', [AdminServiceController::class, 'index'])->name('services.index');
@@ -54,17 +58,36 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/service-areas', [AdminServiceAreaController::class, 'store'])->name('service-areas.store');
         Route::put('/service-areas/{serviceArea}', [AdminServiceAreaController::class, 'update'])->name('service-areas.update');
         Route::post('/service-areas/{serviceArea}/toggle', [AdminServiceAreaController::class, 'toggle'])->name('service-areas.toggle');
+        Route::delete('/service-areas/{serviceArea}', [AdminServiceAreaController::class, 'destroy'])->name('service-areas.destroy');
 
-        // FR-ADM-008: customer list.
+        // FR-ADM-008: customer list and user management.
         Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+        Route::post('/customers', [AdminCustomerController::class, 'store'])->name('customers.store');
         Route::get('/customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');
+        Route::put('/customers/{user}', [AdminCustomerController::class, 'update'])->name('customers.update');
+        Route::delete('/customers/{user}', [AdminCustomerController::class, 'destroy'])->name('customers.destroy');
 
         // FR-ADM-009: daily report + CSV export.
         Route::get('/reports/daily', [AdminReportController::class, 'daily'])->name('reports.daily');
         Route::get('/reports/daily/export', [AdminReportController::class, 'exportCsv'])->name('reports.daily.export');
+        Route::get('/reports/revenue', [AdminReportController::class, 'revenue'])->name('reports.revenue');
 
         // FR-SET-001/002/003: currency, business profile, VAT, delivery charges.
         Route::get('/settings', [AdminSettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+
+        // REQ-ADM-08: banners and CMS pages.
+        Route::get('/banners', [AdminBannerController::class, 'index'])->name('banners.index');
+        Route::post('/banners', [AdminBannerController::class, 'store'])->name('banners.store');
+        Route::put('/banners/{banner}', [AdminBannerController::class, 'update'])->name('banners.update');
+        Route::delete('/banners/{banner}', [AdminBannerController::class, 'destroy'])->name('banners.destroy');
+
+        Route::get('/cms-pages', [AdminCmsPageController::class, 'index'])->name('cms-pages.index');
+        Route::post('/cms-pages', [AdminCmsPageController::class, 'store'])->name('cms-pages.store');
+        Route::put('/cms-pages/{cmsPage}', [AdminCmsPageController::class, 'update'])->name('cms-pages.update');
+        Route::delete('/cms-pages/{cmsPage}', [AdminCmsPageController::class, 'destroy'])->name('cms-pages.destroy');
+
+        // REQ-ADM-10: view captured leads (out-of-area booking attempts).
+        Route::get('/leads', [AdminLeadController::class, 'index'])->name('leads.index');
     });
 });

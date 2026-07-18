@@ -8,6 +8,7 @@ use App\Http\Resources\OrderResource;
 use App\Models\Address;
 use App\Models\Driver;
 use App\Models\DriverTask;
+use App\Models\GarmentTag;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderNote;
@@ -69,10 +70,22 @@ class AdminOrderController extends Controller
 
         $orders = $query->latest()->paginate(25)->withQueryString();
 
-        return Inertia::render('Orders/Board', [
+        return Inertia::render('Admin/Orders/Board', [
             'orders' => OrderResource::collection($orders),
             'filters' => $filters,
             'pendingCount' => fn () => Order::query()->withoutGlobalScopes()->where('status', 'pending')->count(),
+            'readyCount' => fn () => Order::query()->withoutGlobalScopes()->where('status', 'ready')->count(),
+            'flaggedCount' => fn () => Order::query()->withoutGlobalScopes()->where('status', 'on_hold')->count(),
+            'driversList' => fn () => Driver::query()->with(['user', 'tasks' => fn($q) => $q->where('status', 'assigned')])->get()->map(fn (Driver $d) => [
+                'id' => $d->id,
+                'name' => $d->user->name,
+                'phone' => $d->user->phone,
+                'vehicle_type' => $d->vehicle_type,
+                'vehicle_number' => $d->vehicle_number,
+                'active' => $d->active,
+                'tasks_count' => $d->tasks->count(),
+            ]),
+            'recentTags' => fn () => GarmentTag::query()->withoutGlobalScopes()->with('orderItem.order.user')->latest()->limit(5)->get(),
             'serviceAreas' => fn () => ServiceArea::query()->orderBy('name')->get(['id', 'name', 'active']),
             'statuses' => array_map(fn (OrderStatus $s) => $s->value, OrderStatus::cases()),
         ]);
@@ -87,7 +100,7 @@ class AdminOrderController extends Controller
             'driverTasks.driver.user',
         ]);
 
-        return Inertia::render('Orders/Show', [
+        return Inertia::render('Admin/Orders/Show', [
             // A json_encode/decode round-trip forces nested resources/collections
             // (items, notes, etc.) to fully flatten via their own jsonSerialize(),
             // the same way a normal JSON response would — passing the bare
@@ -108,7 +121,7 @@ class AdminOrderController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Orders/New', [
+        return Inertia::render('Admin/Orders/New', [
             'services' => Service::query()->where('active', true)->orderBy('name')->get(['id', 'name', 'unit', 'price']),
             'serviceAreas' => ServiceArea::query()->where('active', true)->orderBy('name')->get(['id', 'name']),
             'timeSlots' => TimeSlot::query()
@@ -326,5 +339,33 @@ class AdminOrderController extends Controller
         ]);
 
         return back()->with('success', 'Order adjusted.');
+    }
+
+    public function transitionStatus(Request $request, Order $order)
+    {
+        $data = $request->validate([
+            'status' => ['required', 'string', 'in:pending,confirmed,assigned,picked_up,processing,on_hold,ready,out_for_delivery,delivered,rated,cancelled'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $targetStatus = OrderStatus::from($data['status']);
+
+        try {
+            if ($targetStatus === OrderStatus::Cancelled) {
+                if (in_array($order->status, self::STANDARD_CANCELLABLE, true)) {
+                    $this->machine->transition($order, OrderStatus::Cancelled, $request->user(), $data['note'] ?? 'Cancelled by Admin');
+                } else {
+                    $this->machine->forceCancel($order, $request->user(), $data['note'] ?? 'Forced cancellation');
+                }
+            } else {
+                $this->machine->transition($order, $targetStatus, $request->user(), $data['note']);
+            }
+        } catch (\Exception $e) {
+            throw ValidationException::withMessages([
+                'status' => [$e->getMessage()],
+            ]);
+        }
+
+        return back()->with('success', 'Order status updated.');
     }
 }

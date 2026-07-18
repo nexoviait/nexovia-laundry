@@ -34,7 +34,7 @@ class AdminReportTest extends TestCase
         $response = $this->actingAs($this->admin)->get('/admin/reports/daily');
 
         $response->assertOk()->assertInertia(fn ($page) => $page
-            ->component('Reports/Daily')
+            ->component('Admin/Reports/Daily')
             ->where('summary.total_orders', 2)
             ->where('summary.cancelled', 1)
             ->where('summary.revenue', fn ($revenue) => (float) $revenue === 20.0)

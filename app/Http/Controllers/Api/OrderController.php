@@ -59,11 +59,46 @@ class OrderController extends Controller
             'items.service',
             'items.garmentTags',
             'invoice',
+            'rating',
             'statusHistories' => fn ($query) => $query->with('changedBy')->oldest(),
             'driverTasks.driver',
         ]);
 
         return new OrderResource($order);
+    }
+
+    /**
+     * REQ-CUST-11: star rating after delivery. Mirrors
+     * CustomerWebOrderController::rate() for the web portal — same rules,
+     * Bearer-token API surface for the mobile app.
+     */
+    public function rate(Request $request, Order $order)
+    {
+        $this->authorize('update', $order);
+
+        if ($order->status !== OrderStatus::Delivered) {
+            return response()->json(['message' => 'Only delivered orders can be rated.'], 422);
+        }
+
+        $data = $request->validate([
+            'stars' => ['required', 'integer', 'between:1,5'],
+            'comment' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $order->rating()->create([
+            'user_id' => $request->user()->id,
+            'stars' => $data['stars'],
+            'comment' => $data['comment'] ?? null,
+        ]);
+
+        $this->machine->transition(
+            $order,
+            OrderStatus::Rated,
+            $request->user(),
+            "Rated by customer: {$data['stars']} stars"
+        );
+
+        return new OrderResource($order->fresh(['rating']));
     }
 
     public function store(Request $request)
@@ -98,7 +133,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            $pricing = $this->pricing->priceLines($data['items']);
+            $pricing = $this->pricing->priceLines($data['items'], $address->id);
 
             $order = Order::create([
                 'user_id' => $user->id,

@@ -25,8 +25,7 @@ class DriverTaskController extends Controller
         private readonly OrderStatusMachine $machine,
         private readonly OrderStatusNotifier $notifier,
         private readonly SmsGateway $sms,
-    ) {
-    }
+    ) {}
 
     /** FR-RID-002: today's task list, sorted by pickup/delivery slot then area. */
     public function index(Request $request)

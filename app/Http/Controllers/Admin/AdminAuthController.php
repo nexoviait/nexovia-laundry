@@ -19,7 +19,7 @@ use Inertia\Response;
  */
 class AdminAuthController extends Controller
 {
-    private const ALLOWED_ROLES = ['admin', 'shop'];
+    private const ALLOWED_ROLES = ['super_admin', 'admin', 'shop'];
 
     public function create(): Response
     {

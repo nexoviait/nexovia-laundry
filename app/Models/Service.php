@@ -12,9 +12,12 @@ class Service extends Model
 
     protected $fillable = [
         'name',
+        'category',
         'unit',
         'price',
+        'express_price',
         'tat',
+        'express_tat',
         'active',
     ];
 
@@ -22,6 +25,7 @@ class Service extends Model
     {
         return [
             'price' => 'decimal:2',
+            'express_price' => 'decimal:2',
             'active' => 'boolean',
         ];
     }

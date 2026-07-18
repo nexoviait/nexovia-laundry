@@ -23,7 +23,7 @@ class AdminTimeSlotController extends Controller
             $query->where('service_area_id', $data['service_area_id']);
         }
 
-        return Inertia::render('TimeSlots/Index', [
+        return Inertia::render('Admin/TimeSlots/Index', [
             'timeSlots' => $query->orderBy('date')->orderBy('window')->paginate(50)->withQueryString(),
             'serviceAreas' => ServiceArea::query()->orderBy('name')->get(['id', 'name', 'active']),
             'filters' => $data,

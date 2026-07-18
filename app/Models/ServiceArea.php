@@ -12,13 +12,16 @@ class ServiceArea extends Model
 
     protected $fillable = [
         'name',
+        'country',
         'postcode',
+        'delivery_charge',
         'active',
     ];
 
     protected function casts(): array
     {
         return [
+            'delivery_charge' => 'decimal:2',
             'active' => 'boolean',
         ];
     }

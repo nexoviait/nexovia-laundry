@@ -48,7 +48,7 @@ class AdminOrderTest extends TestCase
         $this->actingAs($this->admin)->get('/admin/orders')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Orders/Board')
+                ->component('Admin/Orders/Board')
                 ->where('pendingCount', 2)
                 ->has('orders.data', 3)
             );
@@ -61,7 +61,7 @@ class AdminOrderTest extends TestCase
         $this->actingAs($this->admin)->get("/admin/orders/{$order->id}")
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Orders/Show')
+                ->component('Admin/Orders/Show')
                 ->where('order.id', $order->id)
                 ->where('order.status', 'pending')
             );
@@ -224,5 +224,23 @@ class AdminOrderTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['phone' => '+447700900123', 'role' => 'customer']);
         $this->assertDatabaseHas('orders', ['status' => 'pending']);
+    }
+
+    public function test_admin_can_manually_transition_order_status(): void
+    {
+        $order = Order::factory()->create(['status' => 'pending']);
+
+        $this->actingAs($this->admin)->post("/admin/orders/{$order->id}/transition", [
+            'status' => 'confirmed',
+            'note' => 'Manually confirmed by Admin staff member',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'confirmed']);
+        $this->assertDatabaseHas('status_histories', [
+            'order_id' => $order->id,
+            'status' => 'confirmed',
+            'note' => 'Manually confirmed by Admin staff member',
+            'changed_by' => $this->admin->id,
+        ]);
     }
 }

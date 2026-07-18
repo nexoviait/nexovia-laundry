@@ -25,7 +25,9 @@ class User extends Authenticatable
         'phone',
         'role',
         'language',
+        'branch',
         'password',
+        'push_token',
     ];
 
     /**

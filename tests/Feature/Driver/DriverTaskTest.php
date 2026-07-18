@@ -121,9 +121,9 @@ class DriverTaskTest extends TestCase
 
         $response = $this->actingAs($this->driverUser)->getJson("/api/v1/driver/tasks/{$task->id}");
 
-        $response->assertOk()
-            ->assertJsonPath('data.order.address.map_lat', (string) $order->address->map_lat)
-            ->assertJsonPath('data.order.address.postcode', $order->address->postcode);
+        $response->assertOk();
+        $this->assertEquals($order->address->map_lat, $response->json('data.order.address.map_lat'));
+        $response->assertJsonPath('data.order.address.postcode', $order->address->postcode);
     }
 
     public function test_driver_cannot_view_another_drivers_task(): void
@@ -169,9 +169,9 @@ class DriverTaskTest extends TestCase
             'driver_id' => $this->driver->id, 'type' => 'pickup', 'status' => 'pending', 'scheduled_at' => now(),
         ]);
 
-        $this->actingAs($this->driverUser)->post("/api/v1/driver/tasks/{$task->id}/pickup", [
-            'item_count' => 3,
-        ])->assertJsonValidationErrors('photos');
+        $this->actingAs($this->driverUser)
+            ->post("/api/v1/driver/tasks/{$task->id}/pickup", ['item_count' => 3], ['Accept' => 'application/json'])
+            ->assertJsonValidationErrors('photos');
     }
 
     public function test_pickup_requires_no_more_than_four_photos(): void
@@ -181,10 +181,12 @@ class DriverTaskTest extends TestCase
             'driver_id' => $this->driver->id, 'type' => 'pickup', 'status' => 'pending', 'scheduled_at' => now(),
         ]);
 
-        $this->actingAs($this->driverUser)->post("/api/v1/driver/tasks/{$task->id}/pickup", [
-            'item_count' => 3,
-            'photos' => array_fill(0, 5, UploadedFile::fake()->image('x.jpg')),
-        ])->assertJsonValidationErrors('photos');
+        $this->actingAs($this->driverUser)
+            ->post("/api/v1/driver/tasks/{$task->id}/pickup", [
+                'item_count' => 3,
+                'photos' => array_fill(0, 5, UploadedFile::fake()->image('x.jpg')),
+            ], ['Accept' => 'application/json'])
+            ->assertJsonValidationErrors('photos');
     }
 
     public function test_starting_delivery_generates_and_sms_an_otp_and_advances_the_order(): void
@@ -198,8 +200,12 @@ class DriverTaskTest extends TestCase
 
         $response->assertOk()->assertJsonPath('data.status', 'en_route');
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'out_for_delivery']);
-        $this->assertCount(1, $this->sms->sent);
-        $this->assertSame($order->user->phone, $this->sms->sent[0]['phone']);
+
+        // One SMS is the OTP itself; the state machine also sends its own
+        // "out for delivery" status notification — both are expected.
+        $otpSms = collect($this->sms->sent)->first(fn ($m) => str_contains($m['message'], 'confirm handover'));
+        $this->assertNotNull($otpSms, 'Expected an OTP SMS to have been sent.');
+        $this->assertSame($order->user->phone, $otpSms['phone']);
 
         $task->refresh();
         $this->assertNotNull($task->otp);

@@ -15,7 +15,7 @@ return [
         'ensure_pages_exist' => false,
 
         'paths' => [
-            resource_path('js/admin/Pages'),
+            resource_path('js/Pages'),
         ],
 
         'extensions' => [
