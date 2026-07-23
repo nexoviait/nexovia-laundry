@@ -19,7 +19,7 @@ export default function Index({ leads, filters }) {
                 </p>
             </div>
 
-            <form onSubmit={submitSearch} className="flex gap-2">
+            <form onSubmit={submitSearch} noValidate className="flex gap-2">
                 <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}

@@ -4,88 +4,61 @@
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+@source '../**/*.jsx';
 
 @theme {
-    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
-body {
-    font-family: var(--font-sans);
+html, body {
+    font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.font-extrabold {
-    font-weight: 600 !important;
+.font-display {
+    font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
-.font-bold {
-    font-weight: 500 !important;
+/* Reference Screenshot Typography Utility Classes */
+.heading-main {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.75rem; /* 28px */
+    line-height: 2.25rem;
+    letter-spacing: -0.025em;
+    color: #0f172a;
 }
 
-.font-semibold {
-    font-weight: 500 !important;
+.heading-section {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.75rem;
+    letter-spacing: -0.015em;
+    color: #0f172a;
 }
 
-/* Driver Dashboard — Kinetic Light Mode theme */
-.driver-portal {
-    font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+.label-micro {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 0.6875rem; /* 11px */
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
 }
 
-.driver-portal .font-black,
-.driver-portal .font-extrabold {
-    font-weight: 800 !important;
-}
-
-.driver-portal .font-bold {
-    font-weight: 700 !important;
-}
-
-.driver-portal .font-semibold,
-.driver-portal .font-medium {
-    font-weight: 500 !important;
-}
-
-.driver-portal .font-normal {
-    font-weight: 400 !important;
-}
-
-/* Headings: Inter SemiBold / Body: Inter Regular / Buttons: Inter Medium */
-.driver-portal h1,
-.driver-portal h2,
-.driver-portal h3,
-.driver-portal h4 {
-    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-}
-
-/* Duplicated .driver-portal class raises specificity above the .font-bold /
-   .font-extrabold utility overrides above, so headings stay SemiBold (600)
-   regardless of which weight utility class the element also carries. */
-.driver-portal.driver-portal h1,
-.driver-portal.driver-portal h2,
-.driver-portal.driver-portal h3,
-.driver-portal.driver-portal h4 {
-    font-weight: 600 !important;
-}
-
-.driver-portal p,
-.driver-portal span,
-.driver-portal label,
-.driver-portal li,
-.driver-portal input,
-.driver-portal a {
-    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-}
-
-.driver-portal button {
-    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-}
-
-.driver-portal.driver-portal button {
-    font-weight: 500 !important;
+.metric-number {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 2rem; /* 32px */
+    line-height: 2.25rem;
+    letter-spacing: -0.03em;
+    color: #0f172a;
 }
 
 @keyframes toast-in {

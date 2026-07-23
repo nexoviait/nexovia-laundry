@@ -1,5 +1,5 @@
 import { router, useForm, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Layout from '@/Layouts/AdminLayout';
 
 const STATUS_THEMES = {
@@ -34,7 +34,8 @@ export default function Show({ order, drivers, timeSlots }) {
     const { props: pageProps } = usePage();
     const currencySymbol = { GBP: '£', USD: '$', EUR: '€' }[pageProps.settings?.currency || 'GBP'] || '£';
 
-    const [slotId, setSlotId] = useState(order.time_slot?.id ?? '');
+    const initialSlotId = order.time_slot_id || order.time_slot?.id || (timeSlots && timeSlots.length > 0 ? timeSlots[0].id : '');
+    const [slotId, setSlotId] = useState(initialSlotId);
     const [driverId, setDriverId] = useState('');
     const [showCancel, setShowCancel] = useState(false);
     const [showAdjust, setShowAdjust] = useState(false);
@@ -46,16 +47,17 @@ export default function Show({ order, drivers, timeSlots }) {
     const adjustForm = useForm({ discount: order.discount ?? 0, reason: '' });
 
     function confirmOrder() {
-        router.post(`/admin/orders/${order.id}/confirm`, { time_slot_id: slotId || null });
+        router.post(`/admin/orders/${order.id}/confirm`, { time_slot_id: slotId ? parseInt(slotId, 10) : null }, { preserveScroll: true });
     }
 
     function changeSlot() {
-        router.post(`/admin/orders/${order.id}/time-slot`, { time_slot_id: slotId });
+        if (!slotId) return;
+        router.post(`/admin/orders/${order.id}/time-slot`, { time_slot_id: parseInt(slotId, 10) }, { preserveScroll: true });
     }
 
     function assignDriver() {
         if (!driverId) return;
-        router.post(`/admin/orders/${order.id}/assign-driver`, { driver_id: driverId });
+        router.post(`/admin/orders/${order.id}/assign-driver`, { driver_id: parseInt(driverId, 10) }, { preserveScroll: true });
     }
 
     function submitNote(e) {
@@ -87,6 +89,32 @@ export default function Show({ order, drivers, timeSlots }) {
     const canCancel = !['delivered', 'cancelled', 'rated'].includes(order.status);
     const canConfirm = order.status === 'pending';
     const canAssign = order.status === 'confirmed';
+
+    const qrDataPayload = useMemo(() => {
+        const itemLines = (order.items || [])
+            .map(i => `• ${i.service?.name || i.name || 'Item'} (x${i.qty}) - ${currencySymbol}${parseFloat(i.line_total || (i.price ? i.price * i.qty : 0) || 0).toFixed(2)}`)
+            .join('\n');
+
+        const slotText = order.time_slot ? `${order.time_slot.date} (${order.time_slot.window})` : 'N/A';
+        const addressText = order.address?.label ? `${order.address.label} - ${order.address.postcode}` : (order.address?.postcode || 'N/A');
+
+        return `==============================
+   CLEAN QUICK LAUNDRY PASS
+==============================
+Order ID: CL-${order.id}
+Status: ${STATUS_LABELS[order.status] || order.status}
+Customer: ${order.user?.name || 'Customer'}
+Phone: ${order.user?.phone || 'N/A'}
+Address: ${addressText}
+Pickup Slot: ${slotText}
+
+ITEMS MANIFEST:
+${itemLines || '• Standard Laundry Service'}
+
+------------------------------
+GRAND TOTAL: ${currencySymbol}${parseFloat(order.total || 0).toFixed(2)}
+==============================`;
+    }, [order, currencySymbol]);
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -168,16 +196,22 @@ export default function Show({ order, drivers, timeSlots }) {
                                         className="w-full bg-slate-50 border border-slate-250 focus:bg-white focus:border-blue-500 rounded-xl py-2 px-3 text-xs font-bold text-slate-700 focus:outline-none"
                                     >
                                         <option value="">Select slot</option>
-                                        {timeSlots.map((s) => (
-                                            <option key={s.id} value={s.id}>{s.date} • {s.window}</option>
-                                        ))}
+                                        {timeSlots.map((s) => {
+                                            const d = new Date(s.date);
+                                            const formattedDate = !isNaN(d.getTime())
+                                                ? d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+                                                : s.date;
+                                            return (
+                                                <option key={s.id} value={s.id}>{formattedDate} • {s.window}</option>
+                                            );
+                                        })}
                                     </select>
                                     
                                     {canConfirm ? (
                                         <button
                                             type="button"
                                             onClick={confirmOrder}
-                                            className="w-full rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-2 shadow-sm"
+                                            className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-2.5 shadow-md shadow-emerald-200 transition-all cursor-pointer"
                                         >
                                             Confirm Order
                                         </button>
@@ -185,7 +219,7 @@ export default function Show({ order, drivers, timeSlots }) {
                                         <button
                                             type="button"
                                             onClick={changeSlot}
-                                            className="w-full rounded-xl border border-slate-250 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-xs py-2"
+                                            className="w-full rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs py-2.5 shadow-md transition-all cursor-pointer"
                                         >
                                             Update Slot
                                         </button>
@@ -212,7 +246,7 @@ export default function Show({ order, drivers, timeSlots }) {
                                         type="button"
                                         onClick={assignDriver}
                                         disabled={!driverId}
-                                        className="w-full rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-2 shadow-sm disabled:opacity-50"
+                                        className="w-full rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-2.5 shadow-md shadow-orange-200 transition-all cursor-pointer disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none"
                                     >
                                         Assign Driver Leg
                                     </button>
@@ -259,7 +293,7 @@ export default function Show({ order, drivers, timeSlots }) {
                                     <button
                                         type="button"
                                         onClick={submitTransition}
-                                        className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs px-4 py-2"
+                                        className="h-[38px] rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs px-4 shadow-sm hover:shadow-md transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center justify-center"
                                     >
                                         Transition
                                     </button>
@@ -324,7 +358,7 @@ export default function Show({ order, drivers, timeSlots }) {
                                 </button>
                                 
                                 {showAdjust && (
-                                    <form onSubmit={submitAdjust} className="mt-3.5 space-y-3 rounded-2xl border border-slate-250 bg-slate-50/50 p-4 max-w-sm">
+                                    <form onSubmit={submitAdjust} noValidate className="mt-3.5 space-y-3 rounded-2xl border border-slate-250 bg-slate-50/50 p-4 max-w-sm">
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-slate-500 uppercase">Discount ({currencySymbol})</label>
                                             <input
@@ -335,6 +369,7 @@ export default function Show({ order, drivers, timeSlots }) {
                                                 onChange={(e) => adjustForm.setData('discount', e.target.value)}
                                                 className="w-full bg-white border border-slate-250 focus:border-blue-500 rounded-xl py-2 px-3 text-xs font-semibold focus:outline-none"
                                             />
+                                            {adjustForm.errors.discount && <p className="text-xs font-bold text-rose-600 mt-1">{adjustForm.errors.discount}</p>}
                                         </div>
 
                                         <div className="space-y-1">
@@ -347,6 +382,7 @@ export default function Show({ order, drivers, timeSlots }) {
                                                 placeholder="e.g. Customer loyalty concession"
                                                 className="w-full bg-white border border-slate-250 focus:border-blue-500 rounded-xl py-2 px-3.5 text-xs font-semibold focus:outline-none"
                                             />
+                                            {adjustForm.errors.reason && <p className="text-xs font-bold text-rose-600 mt-1">{adjustForm.errors.reason}</p>}
                                         </div>
 
                                         <button
@@ -433,19 +469,43 @@ export default function Show({ order, drivers, timeSlots }) {
                     <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
                         <div className="flex items-center justify-between border-b border-slate-50 pb-3">
                             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Order QR Scan Pass</h3>
-                            <span className="text-lg">📱</span>
+                            <span className="text-xs font-black text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-100">Rich Pass</span>
                         </div>
 
-                        <div className="flex flex-col items-center justify-center p-4 border border-slate-100 bg-slate-50 rounded-2xl">
+                        <div className="flex flex-col items-center justify-center p-4 border border-slate-100 bg-slate-50/60 rounded-2xl space-y-3">
                             <img
-                                src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=order-${order.id}`}
-                                alt={`Order ${order.id} QR Code`}
-                                className="h-32 w-32 bg-white p-2 rounded-xl shadow-sm border border-slate-200"
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrDataPayload)}`}
+                                alt={`Order CL-${order.id} Full QR Pass`}
+                                className="h-36 w-36 bg-white p-2 rounded-2xl shadow-sm border border-slate-200 object-contain"
                             />
-                            <span className="text-[10px] font-extrabold text-slate-450 uppercase tracking-widest font-mono mt-3">
-                                SCAN CODE: CL-{order.id}
-                            </span>
+                            <div className="text-center">
+                                <span className="text-xs font-black text-slate-900 uppercase tracking-widest font-mono block">
+                                    SCAN CODE: CL-{order.id}
+                                </span>
+                            </div>
                         </div>
+
+                        {/* Itemized QR Scan Summary */}
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-3 space-y-2 text-xs">
+                            <div className="flex justify-between items-center text-[10px] font-extrabold text-slate-400 uppercase">
+                                <span>QR Encoded Items Manifest</span>
+                                <span className="text-slate-900 font-black">{currencySymbol}{parseFloat(order.total || 0).toFixed(2)}</span>
+                            </div>
+
+                            <div className="space-y-1.5 pt-1.5 border-t border-slate-200/60">
+                                {order.items?.map((it) => (
+                                    <div key={it.id} className="flex justify-between text-[11px] font-semibold text-slate-700">
+                                        <span className="truncate pr-2 font-extrabold text-slate-800">
+                                            {it.service?.name || it.name || 'Item'} <span className="text-slate-400 font-normal">(x{it.qty})</span>
+                                        </span>
+                                        <span className="font-black text-slate-900 shrink-0">
+                                            {currencySymbol}{parseFloat(it.line_total || (it.price ? it.price * it.qty : 0) || 0).toFixed(2)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
                         <p className="text-[10px] text-slate-400 font-semibold text-center leading-normal">
                             Scannable QR Pass for drivers during pickup confirmation, and shop staff during receipt scans.
                         </p>
@@ -554,7 +614,7 @@ export default function Show({ order, drivers, timeSlots }) {
                             </button>
                             
                             {showCancel && (
-                                <form onSubmit={submitCancel} className="space-y-3 pt-2">
+                                <form onSubmit={submitCancel} noValidate className="space-y-3 pt-2">
                                     <input
                                         value={cancelForm.data.reason}
                                         onChange={(e) => cancelForm.setData('reason', e.target.value)}
@@ -562,11 +622,12 @@ export default function Show({ order, drivers, timeSlots }) {
                                         required
                                         className="w-full bg-white border border-red-200 focus:border-red-500 rounded-xl py-2 px-3 text-xs font-semibold focus:outline-none"
                                     />
-                                    
+                                    {cancelForm.errors.reason && <p className="text-xs font-bold text-rose-600">{cancelForm.errors.reason}</p>}
+
                                     <button
                                         type="submit"
                                         disabled={cancelForm.processing}
-                                        className="w-full rounded-xl bg-red-650 hover:bg-red-700 text-white font-extrabold text-xs py-2 shadow-sm"
+                                        className="w-full rounded-xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs py-2 shadow-sm cursor-pointer disabled:opacity-50"
                                     >
                                         Confirm Cancellation
                                     </button>

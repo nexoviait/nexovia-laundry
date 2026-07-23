@@ -8,13 +8,21 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use App\Models\Setting;
+
 /** FR-ADM-005: dynamic item/price management. */
 class AdminServiceController extends Controller
 {
     public function index(): Response
     {
+        $categoriesRaw = Setting::query()->where('key', 'available_service_categories')->value('value')
+            ?? 'Wash & Fold, Dry Cleaning, Ironing & Pressing, Duvet & Bulky, Bedding & Linens, Commercial Laundry, Alterations & Repairs';
+
+        $availableCategories = array_values(array_unique(array_filter(array_map('trim', explode(',', $categoriesRaw)))));
+
         return Inertia::render('Admin/Services/Index', [
-            'services' => Service::query()->orderBy('name')->get(),
+            'services'            => Service::query()->orderBy('name')->get(),
+            'availableCategories' => $availableCategories,
         ]);
     }
 

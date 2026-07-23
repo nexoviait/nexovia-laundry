@@ -31,23 +31,13 @@ export default function Login() {
         verifyForm.post('/login/verify');
     }
     return (
-        <div className="min-h-screen flex bg-slate-50 font-sans">
+        <div className="customer-portal min-h-screen flex font-sans">
             {/* Left Panel - Hero Branding & Laundry Illustration (visible on md and above) */}
-            <div className="hidden md:flex md:w-1/2 lg:w-3/5 flex-col items-center justify-center p-12 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #b2dfdb 0%, #e0f2f1 40%, #e8f5e9 70%, #c8e6c9 100%)' }}>
-                {/* Subtle white dot-matrix grid pattern */}
-                <div className="absolute inset-0 bg-[radial-gradient(rgba(0,77,64,0.04)_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
-
-                {/* Layered high-blur water-like neon glow spheres */}
-                <div className="absolute -top-20 -left-20 w-[450px] h-[450px] bg-teal-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse"></div>
-                <div className="absolute -bottom-20 -right-20 w-[450px] h-[450px] bg-green-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-20 animate-pulse" style={{ animationDelay: '2.5s' }}></div>
-                
-                {/* Vignette depth mask */}
-                <div className="absolute inset-0 bg-gradient-to-t from-teal-900/10 via-transparent to-teal-900/10 opacity-40"></div>
-
+            <div className="hidden md:flex md:w-1/2 lg:w-3/5 flex-col items-center justify-center p-12 relative overflow-hidden bg-gradient-to-br from-emerald-50/60 via-slate-50 to-orange-50/40">
                 <div className="relative z-10 max-w-lg text-center flex flex-col items-center">
                     {/* Glassmorphic Laundry SVG Illustration Container */}
-                    <div className="mb-8 p-6 bg-white/30 rounded-[40px] border border-white/40 backdrop-blur-md shadow-2xl">
-                        <svg viewBox="0 0 300 300" className="w-72 h-72 text-teal-800 drop-shadow-2xl" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div className="mb-8 p-6 bg-white rounded-[40px] border border-slate-100 shadow-2xl shadow-slate-200/60">
+                        <svg viewBox="0 0 300 300" className="w-72 h-72 text-slate-500 drop-shadow-2xl" fill="none" xmlns="http://www.w3.org/2000/svg">
                             {/* Floating Bubbles */}
                             <circle cx="50" cy="80" r="10" stroke="currentColor" strokeWidth="2.5" fill="currentColor" fillOpacity="0.1" className="animate-pulse" />
                             <circle cx="80" cy="50" r="6" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.05" />
@@ -93,45 +83,45 @@ export default function Login() {
                             </g>
 
                             {/* Sparkles / Clean stars */}
-                            <path d="M210 160 L213 168 L221 171 L213 174 L210 182 L207 174 L199 171 L207 168 Z" fill="currentColor" />
-                            <path d="M250 200 L251.5 204 L255.5 205.5 L251.5 207 L250 211 L248.5 207 L244.5 205.5 L248.5 204 Z" fill="currentColor" opacity="0.8" />
-                            <path d="M25 240 L27 245 L32 247 L27 249 L25 254 L23 249 L18 247 L23 245 Z" fill="currentColor" opacity="0.6" />
+                            <path d="M210 160 L213 168 L221 171 L213 174 L210 182 L207 174 L199 171 L207 168 Z" fill="#f97316" />
+                            <path d="M250 200 L251.5 204 L255.5 205.5 L251.5 207 L250 211 L248.5 207 L244.5 205.5 L248.5 204 Z" fill="#f97316" opacity="0.8" />
+                            <path d="M25 240 L27 245 L32 247 L27 249 L25 254 L23 249 L18 247 L23 245 Z" fill="#f97316" opacity="0.6" />
                         </svg>
                     </div>
 
-                    <h2 className="text-3xl font-extrabold tracking-tight text-teal-900 mb-3">
+                    <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 font-display mb-3">
                         Clean Quick Laundry
                     </h2>
-                    <span className="inline-flex rounded-full bg-teal-800/10 px-3 py-1 text-xs font-bold text-teal-800 border border-teal-800/20 mb-4 uppercase tracking-widest">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500/10 to-amber-500/10 px-4 py-1 text-xs font-bold text-orange-600 border border-orange-500/20 uppercase tracking-widest font-display shadow-xs mb-4">
                         Customer Portal
                     </span>
-                    <p className="text-teal-800/70 text-sm font-medium leading-relaxed max-w-sm">
+                    <p className="text-slate-600 text-sm leading-relaxed max-w-sm font-normal">
                         Create an account or sign in to book instant laundry services, configure personal preferences, and track active bookings straight to your door.
                     </p>
                 </div>
             </div>
 
             {/* Right Panel - Login Forms */}
-            <div className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-6 md:p-8 bg-slate-50">
-                <div className="w-full max-w-md bg-white p-8 md:p-10 rounded-3xl border border-slate-100/80 shadow-xl shadow-slate-200/50 space-y-8">
+            <div className="w-full md:w-1/2 lg:w-2/5 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-white overflow-y-auto">
+                <div className="w-full max-w-md bg-white p-5 sm:p-8 md:p-10 rounded-3xl border border-slate-100/90 shadow-xl shadow-slate-200/40 space-y-5 sm:space-y-6">
                     {/* Small mobile logo brand */}
-                    <div className="md:hidden flex items-center gap-3.5 mb-8">
-                        <span className="h-10 w-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-indigo-200">
+                    <div className="md:hidden flex items-center gap-3 mb-4">
+                        <span className="h-9 w-9 rounded-2xl bg-gradient-to-br from-orange-600 to-orange-500 flex items-center justify-center text-white font-extrabold text-base shadow-md shadow-orange-200 font-display">
                             CQ
                         </span>
                         <div>
-                            <h2 className="font-extrabold text-lg text-slate-900 leading-tight">Clean Quick Laundry</h2>
-                            <p className="text-xs text-slate-500 font-semibold">
+                            <h2 className="font-extrabold text-base text-slate-900 leading-tight font-display">Clean Quick Laundry</h2>
+                            <p className="text-xs text-slate-500 font-medium">
                                 {step === 1 ? 'Customer Login' : 'Enter OTP Verification'}
                             </p>
                         </div>
                     </div>
 
                     <div className="mb-6 hidden md:block">
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                        <h1 className="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
                             {step === 1 ? 'Welcome' : 'Verify Code'}
                         </h1>
-                        <p className="mt-2 text-slate-500 text-sm font-semibold">
+                        <p className="mt-2.5 text-slate-600 text-sm font-medium leading-relaxed">
                             {step === 1 
                                 ? 'Enter your phone number to sign in or register' 
                                 : 'Enter the 6-digit verification code sent to your phone'}
@@ -140,22 +130,22 @@ export default function Login() {
 
                     {/* Notifications */}
                     {flash.success && (
-                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 px-4 py-3.5 text-xs text-emerald-800 font-semibold flex items-center gap-2 animate-fade-in">
-                            <span className="text-emerald-500 text-sm">✓</span>
+                        <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/60 px-4 py-3 text-xs text-emerald-900 font-semibold flex items-center gap-2 animate-fade-in">
+                            <span className="text-emerald-600 text-sm">✓</span>
                             <span>{flash.success}</span>
                         </div>
                     )}
                     {flash.error && (
-                        <div className="rounded-2xl border border-rose-100 bg-rose-50/50 px-4 py-3.5 text-xs text-rose-800 font-semibold flex items-center gap-2 animate-fade-in">
-                            <span className="text-rose-500 text-sm">✕</span>
+                        <div className="rounded-2xl border border-rose-200/80 bg-rose-50/60 px-4 py-3 text-xs text-rose-900 font-semibold flex items-center gap-2 animate-fade-in">
+                            <span className="text-rose-600 text-sm">✕</span>
                             <span>{flash.error}</span>
                         </div>
                     )}
 
                     {step === 1 ? (
-                        <form onSubmit={requestOtp} className="space-y-6">
+                        <form onSubmit={requestOtp} noValidate className="space-y-4 sm:space-y-6">
                             <div>
-                                <label htmlFor="phone" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                <label htmlFor="phone" className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 font-display">
                                     Phone Number
                                 </label>
                                 <input
@@ -167,12 +157,12 @@ export default function Login() {
                                     value={phoneForm.data.phone}
                                     onChange={(e) => phoneForm.setData('phone', e.target.value)}
                                     className={`w-full rounded-2xl border ${
-                                        phoneForm.errors.phone ? 'border-red-300 bg-red-50/10 focus:border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
-                                    } px-4 py-3.5 text-sm font-medium text-slate-800 transition-all focus:outline-none focus:ring-4`}
+                                        phoneForm.errors.phone ? 'border-red-300 bg-red-50/10 focus:border-red-500 focus:ring-red-200' : 'border-slate-200/80 focus:border-orange-500 focus:ring-orange-100'
+                                    } px-4 py-3 text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400/70 transition-all focus:outline-none focus:ring-4`}
                                     autoFocus
                                 />
                                 {phoneForm.errors.phone && (
-                                    <p className="mt-2 text-xs text-red-600 font-semibold flex items-center gap-1.5 animate-fade-in">
+                                    <p className="mt-1.5 text-xs text-red-600 font-semibold flex items-center gap-1.5 animate-fade-in">
                                         <span className="w-1.5 h-1.5 rounded-full bg-red-600 inline-block"></span>
                                         {phoneForm.errors.phone}
                                     </p>
@@ -183,7 +173,7 @@ export default function Login() {
                                 type="submit"
                                 disabled={phoneForm.processing}
                                 id="btn-request-otp"
-                                className="w-full flex items-center justify-center rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] px-4 py-4 text-sm font-extrabold text-white shadow-lg shadow-indigo-100 hover:shadow-xl hover:shadow-indigo-200 transition-all disabled:opacity-50 disabled:pointer-events-none"
+                                className="w-full flex items-center justify-center rounded-2xl bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 active:scale-[0.99] px-4 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-200 font-display disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
                             >
                                 {phoneForm.processing ? (
                                     <span className="flex items-center gap-2">
@@ -194,15 +184,20 @@ export default function Login() {
                                         Sending...
                                     </span>
                                 ) : (
-                                    'Send Verification Code'
+                                    <span className="flex items-center gap-2">
+                                        Send Verification Code
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                        </svg>
+                                    </span>
                                 )}
                             </button>
                         </form>
                     ) : (
-                        <form onSubmit={verifyOtp} className="space-y-6">
-                            <div className="space-y-5">
+                        <form onSubmit={verifyOtp} noValidate className="space-y-4 sm:space-y-6">
+                            <div className="space-y-4">
                                 <div>
-                                    <label htmlFor="otp" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                    <label htmlFor="otp" className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 font-display">
                                         6-Digit Verification Code
                                     </label>
                                     <input
@@ -215,11 +210,11 @@ export default function Login() {
                                         value={verifyForm.data.otp}
                                         onChange={(e) => verifyForm.setData('otp', e.target.value)}
                                         className={`w-full rounded-2xl border ${
-                                            verifyForm.errors.otp ? 'border-red-300 bg-red-50/10 focus:border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
-                                        } px-4 py-3.5 text-center font-mono text-xl tracking-widest font-extrabold text-slate-800 transition-all focus:outline-none focus:ring-4`}
+                                            verifyForm.errors.otp ? 'border-red-300 bg-red-50/10 focus:border-red-500 focus:ring-red-200' : 'border-slate-200/80 focus:border-orange-500 focus:ring-orange-100'
+                                        } px-4 py-3 text-center font-mono text-xl sm:text-2xl tracking-widest font-extrabold text-slate-900 transition-all focus:outline-none focus:ring-4`}
                                     />
                                     {verifyForm.errors.otp && (
-                                        <p className="mt-2 text-xs text-red-600 font-semibold flex items-center gap-1.5 animate-fade-in">
+                                        <p className="mt-1.5 text-xs text-red-600 font-semibold flex items-center gap-1.5 animate-fade-in">
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-600 inline-block"></span>
                                             {verifyForm.errors.otp}
                                         </p>
@@ -227,22 +222,23 @@ export default function Login() {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="name" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                        Your Name (New Users Only)
+                                    <label htmlFor="name" className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 font-display">
+                                        Your Full Name <span className="text-orange-600 font-extrabold">*</span>
                                     </label>
                                     <input
                                         id="name"
                                         name="name"
                                         type="text"
+                                        required
                                         placeholder="John Doe"
                                         value={verifyForm.data.name}
                                         onChange={(e) => verifyForm.setData('name', e.target.value)}
                                         className={`w-full rounded-2xl border ${
-                                            verifyForm.errors.name ? 'border-red-300 bg-red-50/10 focus:border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-100'
-                                        } px-4 py-3.5 text-sm font-medium text-slate-800 transition-all focus:outline-none focus:ring-4`}
+                                            verifyForm.errors.name ? 'border-red-300 bg-red-50/10 focus:border-red-500 focus:ring-red-200' : 'border-slate-200/80 focus:border-orange-500 focus:ring-orange-100'
+                                        } px-4 py-3 text-sm sm:text-base font-semibold text-slate-900 placeholder:text-slate-400/70 transition-all focus:outline-none focus:ring-4`}
                                     />
                                     {verifyForm.errors.name && (
-                                        <p className="mt-2 text-xs text-red-600 font-semibold flex items-center gap-1.5 animate-fade-in">
+                                        <p className="mt-1.5 text-xs text-red-600 font-semibold flex items-center gap-1.5 animate-fade-in">
                                             <span className="w-1.5 h-1.5 rounded-full bg-red-600 inline-block"></span>
                                             {verifyForm.errors.name}
                                         </p>
@@ -250,11 +246,11 @@ export default function Login() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between text-xs font-bold">
+                            <div className="flex items-center justify-between text-xs font-bold font-display">
                                 <button
                                     type="button"
                                     onClick={() => router.get('/login')}
-                                    className="text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1"
+                                    className="text-orange-600 hover:text-orange-700 transition-colors flex items-center gap-1.5 cursor-pointer"
                                 >
                                     ← Change number
                                 </button>
@@ -264,7 +260,7 @@ export default function Login() {
                                 type="submit"
                                 disabled={verifyForm.processing}
                                 id="btn-verify-otp"
-                                className="w-full flex items-center justify-center rounded-2xl bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] px-4 py-4 text-sm font-extrabold text-white shadow-lg shadow-indigo-100 hover:shadow-xl hover:shadow-indigo-200 transition-all disabled:opacity-50 disabled:pointer-events-none"
+                                className="w-full flex items-center justify-center rounded-2xl bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 active:scale-[0.99] px-4 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-200 font-display disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
                             >
                                 {verifyForm.processing ? (
                                     <span className="flex items-center gap-2">
@@ -275,14 +271,19 @@ export default function Login() {
                                         Verifying...
                                     </span>
                                 ) : (
-                                    'Verify & Log In'
+                                    <span className="flex items-center gap-2">
+                                        Verify & Log In
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                        </svg>
+                                    </span>
                                 )}
                             </button>
                         </form>
                     )}
                     {/* Standard Copyright Footer */}
-                    <div className="mt-16 text-center text-xs font-bold text-slate-400">
-                        <p>© 2026 Clean Quick Laundry. All rights reserved.</p>
+                    <div className="mt-6 sm:mt-8 text-center text-xs font-medium text-slate-500">
+                        <p>© {new Date().getFullYear()} Clean Quick Laundry. Developed by <a href="https://nexoviait.com/" target="_blank" rel="noopener noreferrer" className="font-extrabold text-[#f95700] hover:underline">Nexovia IT Limited</a>. All rights reserved.</p>
                     </div>
                 </div>
             </div>

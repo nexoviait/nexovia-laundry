@@ -19,6 +19,7 @@ Route::prefix('shop')->name('shop.')->middleware(['auth', 'role:shop,admin'])->g
 
     // FR-OPS-003: one-click stage updates.
     Route::post('/garment-tags/{garmentTag}/stage', [ShopGarmentTagController::class, 'updateStage'])->name('garment-tags.stage');
+    Route::post('/orders/{order}/advance-all-stages', [ShopGarmentTagController::class, 'advanceAll'])->name('orders.advance-all');
     // FR-OPS-004: issue flagging with photos -> ON_HOLD.
     Route::post('/garment-tags/{garmentTag}/issue', [ShopGarmentTagController::class, 'flagIssue'])->name('garment-tags.issue');
     Route::post('/garment-tags/{garmentTag}/resolve', [ShopGarmentTagController::class, 'resolveIssue'])->name('garment-tags.resolve');

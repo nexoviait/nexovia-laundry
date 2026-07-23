@@ -10,15 +10,17 @@ Route::middleware('guest')->prefix('driver')->name('driver.')->group(function ()
     Route::post('/login', [DriverAuthController::class, 'store'])->name('login.store');
 });
 
+Route::match(['get', 'post'], '/driver/logout', [DriverAuthController::class, 'destroy'])->name('driver.logout');
+
 // Authenticated driver routes
 Route::middleware(['auth', 'role:driver'])->prefix('driver')->name('driver.')->group(function () {
-    Route::post('/logout', [DriverAuthController::class, 'destroy'])->name('logout');
 
     Route::get('/dashboard', [DriverWebController::class, 'dashboard'])->name('dashboard');
     Route::get('/live-queue', [DriverWebController::class, 'liveQueue'])->name('live-queue');
     Route::get('/otp-handover', [DriverWebController::class, 'otpHandover'])->name('otp-handover');
     Route::get('/support', [DriverWebController::class, 'support'])->name('support');
     Route::get('/settings', [DriverWebController::class, 'settings'])->name('settings');
+    Route::put('/settings', [DriverWebController::class, 'updateSettings'])->name('settings.update');
     Route::post('/toggle-status', [DriverWebController::class, 'toggleStatus'])->name('toggle-status');
     Route::get('/history', [DriverWebController::class, 'history'])->name('history');
     Route::get('/tasks/{driverTask}', [DriverWebController::class, 'showTask'])->name('tasks.show');

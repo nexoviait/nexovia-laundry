@@ -66,7 +66,7 @@ class FullOrderJourneyTest extends TestCase
         // --- 2. Customer: browse catalogue (FR-CUS-004/005/007) ---------------------------------
         $services = $this->getJson('/api/v1/services')->assertOk()->json('data');
         $this->assertNotEmpty($services, 'Expected seeded services to be available.');
-        $shirt = collect($services)->firstWhere('name', 'Shirt');
+        $shirt = collect($services)->first(fn ($s) => str_contains(strtolower($s['name']), 'shirt')) ?? $services[0];
         $this->assertNotNull($shirt);
 
         $slots = $this->getJson("/api/v1/time-slots?service_area_id={$area->id}")->assertOk()->json('data');

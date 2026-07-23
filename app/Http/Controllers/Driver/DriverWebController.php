@@ -52,7 +52,19 @@ class DriverWebController extends Controller
 
         abort_unless($driver, 403, 'This account is not linked to a driver profile.');
 
+        $tasks = DriverTask::query()
+            ->where('driver_id', $driver->id)
+            ->whereIn('status', ['pending', 'en_route'])
+            ->with(['order.address.serviceArea', 'order.timeSlot', 'order.user', 'order.items.service'])
+            ->get()
+            ->sortBy([
+                fn (DriverTask $a, DriverTask $b) => $a->status === 'en_route' ? 0 : 1,
+                fn (DriverTask $a, DriverTask $b) => $a->order->timeSlot?->window <=> $b->order->timeSlot?->window,
+            ])
+            ->values();
+
         return Inertia::render('Driver/LiveQueue', [
+            'tasks'  => $tasks,
             'driver' => $driver->load('user'),
         ]);
     }
@@ -63,7 +75,20 @@ class DriverWebController extends Controller
 
         abort_unless($driver, 403, 'This account is not linked to a driver profile.');
 
+        $tasks = DriverTask::query()
+            ->where('driver_id', $driver->id)
+            ->where('type', 'delivery')
+            ->whereIn('status', ['pending', 'en_route'])
+            ->with(['order.address.serviceArea', 'order.timeSlot', 'order.user', 'order.items.service', 'order.invoice'])
+            ->get()
+            ->sortBy([
+                fn (DriverTask $a, DriverTask $b) => $a->status === 'en_route' ? 0 : 1,
+                fn (DriverTask $a, DriverTask $b) => $a->order->id,
+            ])
+            ->values();
+
         return Inertia::render('Driver/OtpHandover', [
+            'tasks'  => $tasks,
             'driver' => $driver->load('user'),
         ]);
     }
@@ -74,8 +99,15 @@ class DriverWebController extends Controller
 
         abort_unless($driver, 403, 'This account is not linked to a driver profile.');
 
+        $activeTasks = DriverTask::query()
+            ->where('driver_id', $driver->id)
+            ->whereIn('status', ['pending', 'en_route'])
+            ->with(['order.user', 'order.address'])
+            ->get();
+
         return Inertia::render('Driver/Support', [
-            'driver' => $driver->load('user'),
+            'activeTasks' => $activeTasks,
+            'driver'      => $driver->load('user'),
         ]);
     }
 
@@ -88,6 +120,34 @@ class DriverWebController extends Controller
         return Inertia::render('Driver/Settings', [
             'driver' => $driver->load('user'),
         ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $driver = $request->user()->driver;
+
+        abort_unless($driver, 403, 'This account is not linked to a driver profile.');
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:50'],
+            'vehicle_type' => ['required', 'string', 'max:100'],
+            'vehicle_number' => ['required', 'string', 'max:100'],
+            'active' => ['boolean'],
+        ]);
+
+        $request->user()->update([
+            'name' => $data['name'],
+            'phone' => $data['phone'],
+        ]);
+
+        $driver->update([
+            'vehicle_type' => $data['vehicle_type'],
+            'vehicle_number' => $data['vehicle_number'],
+            'active' => $data['active'] ?? $driver->active,
+        ]);
+
+        return back()->with('success', 'Driver profile and vehicle settings updated successfully.');
     }
 
     public function toggleStatus(Request $request)
@@ -217,6 +277,9 @@ class DriverWebController extends Controller
             'otp'            => ['required', 'string'],
             'payment_method' => ['required', 'string', 'in:cash'],
             'cod_amount'     => ['required_if:payment_method,cash', 'nullable', 'numeric', 'min:0'],
+        ], [], [
+            'otp' => 'verification code',
+            'cod_amount' => 'cash collected amount',
         ]);
 
         if ($driverTask->otp_verified_at !== null || $driverTask->otp === null || $driverTask->otp !== $data['otp']) {

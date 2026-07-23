@@ -113,25 +113,60 @@ export default function Index({ users, filters, summary }) {
         return '3 days ago';
     }
 
+    const activeRoleFilter = filters?.role || 'all';
+
+    const pageMeta = {
+        customer: {
+            title: 'Customer Management',
+            subtitle: 'View registered customer profiles, track booking activity, and manage contact details.',
+            buttonText: 'Add New Customer',
+            modalTitle: 'Create New Customer',
+            defaultRole: 'customer',
+        },
+        driver: {
+            title: 'Driver Fleet & Logistics',
+            subtitle: 'Manage driver accounts, vehicle assignments, active routes, and duty statuses.',
+            buttonText: 'Add New Driver',
+            modalTitle: 'Create New Driver',
+            defaultRole: 'driver',
+        },
+        all: {
+            title: 'User Management',
+            subtitle: 'Control access levels, branch assignments, and user statuses across the platform.',
+            buttonText: 'Add New User',
+            modalTitle: 'Create New User Profile',
+            defaultRole: 'customer',
+        }
+    }[activeRoleFilter] || {
+        title: 'User Management',
+        subtitle: 'Control access levels, branch assignments, and user statuses across the platform.',
+        buttonText: 'Add New User',
+        modalTitle: 'Create New User Profile',
+        defaultRole: 'customer',
+    };
+
     return (
         <div className="space-y-8 animate-fade-in">
             
             {/* Title Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
                 <div>
-                    <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">User Management</h1>
+                    <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{pageMeta.title}</h1>
                     <p className="mt-1 text-slate-500 text-sm font-semibold">
-                        Control access levels, branch assignments, and user statuses across the platform.
+                        {pageMeta.subtitle}
                     </p>
                 </div>
                 
                 <button
                     type="button"
-                    onClick={() => setShowCreateModal(true)}
-                    className="flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs px-4 py-2.5 shadow-md shadow-orange-200 transition-all duration-150 hover:scale-[1.01] active:scale-[0.99]"
+                    onClick={() => {
+                        createForm.setData('role', pageMeta.defaultRole);
+                        setShowCreateModal(true);
+                    }}
+                    className="flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs px-4 py-2.5 shadow-md shadow-orange-200 transition-all duration-150 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
                 >
                     <span>👤+</span>
-                    <span>Add New User</span>
+                    <span>{pageMeta.buttonText}</span>
                 </button>
             </div>
 
@@ -383,10 +418,10 @@ export default function Index({ users, filters, summary }) {
                         >
                             ✕
                         </button>
-                        <h3 className="text-lg font-extrabold text-slate-900 tracking-tight mb-1">Add New User</h3>
+                        <h3 className="text-lg font-extrabold text-slate-900 tracking-tight mb-1">{pageMeta.modalTitle}</h3>
                         <p className="text-slate-500 text-xs font-semibold mb-6">Create a new credentials profile to grant access to the laundry system.</p>
                         
-                        <form onSubmit={submitCreate} className="space-y-4">
+                        <form onSubmit={submitCreate} noValidate className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Full Name</label>
@@ -523,7 +558,7 @@ export default function Index({ users, filters, summary }) {
                         <h3 className="text-lg font-extrabold text-slate-900 tracking-tight mb-1">Edit User Profile</h3>
                         <p className="text-slate-500 text-xs font-semibold mb-6">Modify account settings and access roles for "{selectedUser?.name}".</p>
                         
-                        <form onSubmit={submitEdit} className="space-y-4">
+                        <form onSubmit={submitEdit} noValidate className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Full Name</label>

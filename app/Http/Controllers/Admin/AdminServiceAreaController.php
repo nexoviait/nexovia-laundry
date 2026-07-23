@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ServiceArea;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -13,8 +14,18 @@ class AdminServiceAreaController extends Controller
 {
     public function index(): Response
     {
+        $zoneNamesRaw = Setting::query()->where('key', 'available_zone_names')->value('value')
+            ?? 'Dhaka, Chittagong, Motijheel, Lozells, Handsworth, Newtown, Sylhet, Mirpur, Banani, Gulshan';
+        $countriesRaw = Setting::query()->where('key', 'available_countries')->value('value')
+            ?? 'Bangladesh, United Kingdom, United States, United Arab Emirates, Saudi Arabia, Canada';
+
+        $availableZoneNames = array_values(array_unique(array_filter(array_map('trim', explode(',', $zoneNamesRaw)))));
+        $availableCountries = array_values(array_unique(array_filter(array_map('trim', explode(',', $countriesRaw)))));
+
         return Inertia::render('Admin/ServiceAreas/Index', [
-            'serviceAreas' => ServiceArea::query()->orderBy('name')->get(),
+            'serviceAreas'       => ServiceArea::query()->orderBy('name')->get(),
+            'availableZoneNames' => $availableZoneNames,
+            'availableCountries' => $availableCountries,
         ]);
     }
 

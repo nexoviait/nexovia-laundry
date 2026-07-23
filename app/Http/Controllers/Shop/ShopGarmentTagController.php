@@ -40,6 +40,32 @@ class ShopGarmentTagController extends Controller
         return back()->with('success', 'Stage updated.');
     }
 
+    public function advanceAll(Request $request, \App\Models\Order $order)
+    {
+        $data = $request->validate([
+            'stage' => ['required', 'string', 'in:'.implode(',', GarmentTag::STAGES)],
+        ]);
+
+        if ($order->status !== OrderStatus::Processing) {
+            return back()->with('error', 'This order is not currently on the floor.');
+        }
+
+        $order->load('items.garmentTags');
+        foreach ($order->items as $item) {
+            foreach ($item->garmentTags as $tag) {
+                if (! $tag->issue_flag) {
+                    $currentIndex = array_search($tag->stage, GarmentTag::STAGES, true);
+                    $targetIndex = array_search($data['stage'], GarmentTag::STAGES, true);
+                    if ($targetIndex >= $currentIndex) {
+                        $tag->update(['stage' => $data['stage']]);
+                    }
+                }
+            }
+        }
+
+        return back()->with('success', 'All garments advanced to '.ucwords(str_replace('_', ' ', $data['stage'])).'.');
+    }
+
     public function flagIssue(Request $request, GarmentTag $garmentTag)
     {
         $data = $request->validate([

@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use App\Models\Setting;
+
 /** FR-ADM-006: manage time slots (date, window, capacity) per service area. */
 class AdminTimeSlotController extends Controller
 {
@@ -23,10 +25,16 @@ class AdminTimeSlotController extends Controller
             $query->where('service_area_id', $data['service_area_id']);
         }
 
+        $windowsRaw = Setting::query()->where('key', 'available_time_windows')->value('value')
+            ?? '08:00 - 10:00, 09:00 - 12:00, 10:00 - 12:00, 12:00 - 14:00, 12:00 - 15:00, 14:00 - 16:00, 15:00 - 18:00, 16:00 - 18:00, 18:00 - 20:00';
+
+        $availableTimeWindows = array_values(array_unique(array_filter(array_map('trim', explode(',', $windowsRaw)))));
+
         return Inertia::render('Admin/TimeSlots/Index', [
-            'timeSlots' => $query->orderBy('date')->orderBy('window')->paginate(50)->withQueryString(),
-            'serviceAreas' => ServiceArea::query()->orderBy('name')->get(['id', 'name', 'active']),
-            'filters' => $data,
+            'timeSlots'            => $query->orderBy('date')->orderBy('window')->paginate(25)->withQueryString(),
+            'serviceAreas'         => ServiceArea::query()->orderBy('name')->get(['id', 'name', 'active']),
+            'availableTimeWindows' => $availableTimeWindows,
+            'filters'              => $data,
         ]);
     }
 
@@ -37,6 +45,8 @@ class AdminTimeSlotController extends Controller
             'date' => ['required', 'date'],
             'window' => ['required', 'string', 'max:50'],
             'capacity' => ['required', 'integer', 'min:0'],
+        ], [], [
+            'service_area_id' => 'delivery zone',
         ]);
 
         TimeSlot::create($data);

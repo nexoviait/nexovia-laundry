@@ -43,7 +43,7 @@ export default function Index({ pages }) {
             </div>
 
             {showNew && (
-                <form onSubmit={submitNew} className="rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/20 p-6 space-y-4">
+                <form onSubmit={submitNew} noValidate className="rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/20 p-6 space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold text-slate-500 uppercase">Title</label>
@@ -53,6 +53,7 @@ export default function Index({ pages }) {
                                 onChange={(e) => newForm.setData('title', e.target.value)}
                                 className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none"
                             />
+                            {newForm.errors.title && <p className="text-xs font-bold text-rose-600 mt-1">{newForm.errors.title}</p>}
                         </div>
                         <div className="space-y-1">
                             <label className="text-[10px] font-bold text-slate-500 uppercase">Slug (optional)</label>
@@ -62,6 +63,7 @@ export default function Index({ pages }) {
                                 placeholder="auto-generated from title"
                                 className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none"
                             />
+                            {newForm.errors.slug && <p className="text-xs font-bold text-rose-600 mt-1">{newForm.errors.slug}</p>}
                         </div>
                     </div>
                     <div className="space-y-1">
@@ -73,8 +75,8 @@ export default function Index({ pages }) {
                             onChange={(e) => newForm.setData('content', e.target.value)}
                             className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none"
                         />
+                        {newForm.errors.content && <p className="text-xs font-bold text-rose-600 mt-1">{newForm.errors.content}</p>}
                     </div>
-                    {newForm.errors.slug && <p className="text-xs font-bold text-rose-600">{newForm.errors.slug}</p>}
                     <div className="flex justify-end">
                         <button type="submit" disabled={newForm.processing} className="rounded-xl bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 text-xs font-bold">
                             Save Page

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Customer;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Address;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Service;
@@ -60,6 +59,12 @@ class CustomerWebBookingController extends Controller
             'items' => ['required', 'array', 'min:1'],
             'items.*.service_id' => ['required', 'integer'],
             'items.*.qty' => ['required', 'numeric', 'min:0.01'],
+        ], [], [
+            'address_id' => 'pickup address',
+            'time_slot_id' => 'pickup time slot',
+            'items' => 'basket items',
+            'items.*.service_id' => 'service',
+            'items.*.qty' => 'quantity',
         ]);
 
         $user = $request->user();
@@ -129,9 +134,16 @@ class CustomerWebBookingController extends Controller
             'items' => ['required', 'array', 'min:1'],
             'items.*.service_id' => ['required', 'integer'],
             'items.*.qty' => ['required', 'numeric', 'min:0.01'],
+            'address_id' => ['nullable', 'integer'],
         ]);
 
-        $estimate = $this->pricing->priceLines($data['items']);
+        $addressId = null;
+        if (! empty($data['address_id'])) {
+            // Scope to the current user's own addresses, same as store().
+            $addressId = $request->user()->addresses()->whereKey($data['address_id'])->value('id');
+        }
+
+        $estimate = $this->pricing->priceLines($data['items'], $addressId);
 
         return response()->json($estimate);
     }

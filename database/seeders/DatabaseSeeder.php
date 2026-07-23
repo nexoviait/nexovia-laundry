@@ -59,17 +59,65 @@ class DatabaseSeeder extends Seeder
             }
         });
 
-        $services = collect([
-            ['name' => 'Shirt', 'unit' => 'item', 'price' => 2.50, 'tat' => '24h'],
-            ['name' => 'Trousers', 'unit' => 'item', 'price' => 3.00, 'tat' => '24h'],
-            ['name' => 'Bedsheet', 'unit' => 'item', 'price' => 4.00, 'tat' => '48h'],
-            ['name' => 'Jacket', 'unit' => 'item', 'price' => 6.50, 'tat' => '48h'],
-            ['name' => 'Dress', 'unit' => 'item', 'price' => 5.00, 'tat' => '48h'],
-            ['name' => 'Duvet (wash & dry)', 'unit' => 'kg', 'price' => 8.00, 'tat' => '48h'],
-        ])->map(fn (array $service) => Service::query()->updateOrCreate(
-            ['name' => $service['name']],
-            ['unit' => $service['unit'], 'price' => $service['price'], 'tat' => $service['tat'], 'active' => true]
-        ));
+        $servicesData = [
+            // Washers
+            ['name' => 'Medium Washer (12KG)', 'category' => 'Washers', 'unit' => 'item', 'price' => 5.00, 'tat' => '24'],
+            ['name' => 'Big Washer (15KG)', 'category' => 'Washers', 'unit' => 'item', 'price' => 6.00, 'tat' => '24'],
+            ['name' => 'Bigger Washer (25KG)', 'category' => 'Washers', 'unit' => 'item', 'price' => 11.00, 'tat' => '24'],
+
+            // Dryers
+            ['name' => 'Medium Dryer (12KG • 10 min)', 'category' => 'Dryers', 'unit' => 'item', 'price' => 1.00, 'tat' => '24'],
+            ['name' => 'Big Dryer (15KG • first 15 min)', 'category' => 'Dryers', 'unit' => 'item', 'price' => 2.00, 'tat' => '24'],
+            ['name' => 'Bigger Dryer (25KG • per hr)', 'category' => 'Dryers', 'unit' => 'item', 'price' => 9.00, 'tat' => '24'],
+
+            // Ironing
+            ['name' => 'Shirts (Ironing)', 'category' => 'Ironing', 'unit' => 'item', 'price' => 1.50, 'tat' => '24'],
+            ['name' => 'Pants (Ironing)', 'category' => 'Ironing', 'unit' => 'item', 'price' => 1.50, 'tat' => '24'],
+            ['name' => 'Kurta / Thobes (Ironing)', 'category' => 'Ironing', 'unit' => 'item', 'price' => 1.50, 'tat' => '24'],
+            ['name' => 'Ladies 3-Piece Suits (Ironing)', 'category' => 'Ironing', 'unit' => 'item', 'price' => 2.50, 'tat' => '24'],
+            ['name' => 'Pillow Cover (Ironing)', 'category' => 'Ironing', 'unit' => 'item', 'price' => 0.50, 'tat' => '24'],
+            ['name' => 'Duvet Cover (Ironing)', 'category' => 'Ironing', 'unit' => 'item', 'price' => 2.20, 'tat' => '24'],
+            ['name' => 'Bed Sheet (Ironing)', 'category' => 'Ironing', 'unit' => 'item', 'price' => 1.80, 'tat' => '24'],
+            ['name' => 'Tie (Ironing)', 'category' => 'Ironing', 'unit' => 'item', 'price' => 0.50, 'tat' => '24'],
+
+            // Dry Cleaning
+            ['name' => '3-Piece Suit', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 15.00, 'tat' => '48'],
+            ['name' => '2-Piece Suit', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 13.00, 'tat' => '48'],
+            ['name' => 'Trousers / Jeans', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 6.50, 'tat' => '48'],
+            ['name' => 'Suit Jacket', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 9.00, 'tat' => '48'],
+            ['name' => 'Shirts (Dry Cleaning)', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 4.00, 'tat' => '48'],
+            ['name' => 'Jumpers / Hoodies', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 7.00, 'tat' => '48'],
+            ['name' => 'Skirts', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 6.00, 'tat' => '48'],
+            ['name' => 'Ties', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 4.00, 'tat' => '48'],
+            ['name' => 'T-Shirts', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 6.00, 'tat' => '48'],
+            ['name' => 'Tracksuit', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 13.00, 'tat' => '48'],
+            ['name' => 'Winter Coat', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 12.00, 'tat' => '48'],
+            ['name' => 'Short Coat', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 10.00, 'tat' => '48'],
+            ['name' => 'Puffer Jacket', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 18.50, 'tat' => '48'],
+            ['name' => 'Dress', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 11.00, 'tat' => '48'],
+            ['name' => '2-Piece Asian Suit', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 20.00, 'tat' => '48'],
+            ['name' => '3-Piece Asian Suit', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 25.00, 'tat' => '48'],
+            ['name' => 'Saree', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 15.00, 'tat' => '48'],
+            ['name' => '2-Piece Lehenga Suit', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 25.00, 'tat' => '48'],
+            ['name' => '3-Piece Lehenga Suit', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 30.00, 'tat' => '48'],
+            ['name' => 'Suede / Leather', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 30.00, 'tat' => '48'],
+            ['name' => 'Blankets / Duvets', 'category' => 'Dry Cleaning', 'unit' => 'item', 'price' => 17.00, 'tat' => '48'],
+        ];
+
+        foreach ($servicesData as $s) {
+            Service::query()->updateOrCreate(
+                ['name' => $s['name']],
+                [
+                    'category' => $s['category'],
+                    'unit' => $s['unit'],
+                    'price' => $s['price'],
+                    'tat' => $s['tat'],
+                    'active' => true,
+                ]
+            );
+        }
+
+        $services = Service::query()->where('active', true)->get();
 
         // ── Super Admin ──────────────────────────────────────────────
         User::query()->updateOrCreate(

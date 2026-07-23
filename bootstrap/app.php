@@ -20,6 +20,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'admin/logout',
+            'logout',
+            'driver/logout',
+            'shop/logout',
+        ]);
+
         $middleware->redirectGuestsTo(fn (\Illuminate\Http\Request $request) => 
             $request->is('admin*') || $request->is('shop*') ? '/admin/login' : '/login'
         );

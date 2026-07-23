@@ -84,6 +84,11 @@ class Order extends Model
         return $this->hasMany(DriverTask::class);
     }
 
+    public function driver(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(Driver::class, DriverTask::class, 'order_id', 'id', 'id', 'driver_id');
+    }
+
     public function invoice(): HasOne
     {
         return $this->hasOne(Invoice::class);
@@ -102,6 +107,11 @@ class Order extends Model
     public function rating(): HasOne
     {
         return $this->hasOne(Rating::class);
+    }
+
+    public function garmentTags(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(GarmentTag::class, OrderItem::class);
     }
 
     public function complaints(): HasMany

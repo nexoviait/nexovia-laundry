@@ -2,14 +2,28 @@ import { router, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import Layout from '@/Layouts/AdminLayout';
 
-export default function Index({ services }) {
+export default function Index({ services = [], availableCategories = [] }) {
+    const defaultCategories = [
+        'Wash & Fold',
+        'Dry Cleaning',
+        'Ironing & Pressing',
+        'Duvet & Bulky',
+        'Bedding & Linens',
+        'Commercial Laundry',
+        'Alterations & Repairs',
+    ];
+
+    const categoryList = availableCategories.length > 0 ? availableCategories : defaultCategories;
+
     const { props } = usePage();
     const currencySymbol = { GBP: '£', USD: '$', EUR: '€' }[props.settings?.currency || 'GBP'] || '£';
 
     const [showNew, setShowNew] = useState(false);
+    const [isCustomNewCategory, setIsCustomNewCategory] = useState(false);
+
     const newForm = useForm({
         name: '',
-        category: 'Wash & Fold',
+        category: categoryList[0] || 'Wash & Fold',
         unit: 'item',
         price: '',
         express_price: '',
@@ -27,6 +41,7 @@ export default function Index({ services }) {
             onSuccess: () => {
                 newForm.reset();
                 setShowNew(false);
+                setIsCustomNewCategory(false);
             }
         });
     }
@@ -83,9 +98,9 @@ export default function Index({ services }) {
             {/* Header section */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
                 <div>
-                    <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Service Catalog</h1>
+                    <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Service Catalog & Pricing</h1>
                     <p className="mt-1 text-slate-500 text-sm font-semibold">
-                        Manage your offerings, pricing models, and operational turnaround configurations.
+                        Manage your laundry service offerings, pricing models, and turnaround times.
                     </p>
                 </div>
                 
@@ -107,7 +122,7 @@ export default function Index({ services }) {
 
                     {/* New Service Card/Form */}
                     {showNew && (
-                        <form onSubmit={submitNew} className="rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/20 p-6 space-y-4 animate-slide-down">
+                        <form onSubmit={submitNew} noValidate className="rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/20 p-6 space-y-4 animate-slide-down">
                             <h3 className="text-xs font-extrabold text-blue-800 uppercase tracking-wider">Configure New Service</h3>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1">
@@ -120,20 +135,53 @@ export default function Index({ services }) {
                                         placeholder="e.g. Wash & Fold Premium"
                                         className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none"
                                     />
+                                    {newForm.errors.name && <p className="text-xs font-bold text-rose-600 mt-1">{newForm.errors.name}</p>}
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase">Category</label>
-                                    <select
-                                        value={newForm.data.category}
-                                        onChange={(e) => newForm.setData('category', e.target.value)}
-                                        className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none"
-                                    >
-                                        <option value="Wash & Fold">Wash & Fold</option>
-                                        <option value="Dry Cleaning">Dry Cleaning</option>
-                                        <option value="Ironing/Pressing">Ironing & Pressing</option>
-                                        <option value="Duvet & Bulky">Duvet & Bulky</option>
-                                        <option value="Bedding & Linens">Bedding & Linens</option>
-                                    </select>
+                                    {!isCustomNewCategory ? (
+                                        <select
+                                            value={newForm.data.category}
+                                            onChange={(e) => {
+                                                if (e.target.value === '__custom__') {
+                                                    setIsCustomNewCategory(true);
+                                                    newForm.setData('category', '');
+                                                } else {
+                                                    newForm.setData('category', e.target.value);
+                                                }
+                                            }}
+                                            className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none"
+                                        >
+                                            <option value="">Select Category</option>
+                                            {categoryList.map((cat) => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                            <option value="__custom__">＋ Enter Custom Category...</option>
+                                        </select>
+                                    ) : (
+                                        <div className="flex items-center gap-1">
+                                            <input
+                                                type="text"
+                                                required
+                                                value={newForm.data.category}
+                                                onChange={(e) => newForm.setData('category', e.target.value)}
+                                                placeholder="Type custom category"
+                                                className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none"
+                                                autoFocus
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsCustomNewCategory(false);
+                                                    newForm.setData('category', categoryList[0] || 'Wash & Fold');
+                                                }}
+                                                className="px-2 py-1 text-[10px] text-slate-400 hover:text-slate-700 font-bold shrink-0"
+                                                title="Switch back to dropdown list"
+                                            >
+                                                ✕ List
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase">Pricing Unit</label>
@@ -157,6 +205,7 @@ export default function Index({ services }) {
                                         placeholder="0.00"
                                         className="w-full bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3.5 py-2 text-xs font-semibold focus:outline-none"
                                     />
+                                    {newForm.errors.price && <p className="text-xs font-bold text-rose-600 mt-1">{newForm.errors.price}</p>}
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase">Express Price (Optional)</label>
@@ -279,11 +328,12 @@ export default function Index({ services }) {
                                             onChange={(e) => updateField(s, 'category', e.target.value)}
                                             className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 rounded-xl py-2 px-2 text-xs font-bold text-slate-700 focus:outline-none"
                                         >
-                                            <option value="Wash & Fold">Wash & Fold</option>
-                                            <option value="Dry Cleaning">Dry Cleaning</option>
-                                            <option value="Ironing/Pressing">Ironing & Pressing</option>
-                                            <option value="Duvet & Bulky">Duvet & Bulky</option>
-                                            <option value="Bedding & Linens">Bedding & Linens</option>
+                                            {categoryList.map((cat) => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                            {!categoryList.includes(s.category) && s.category && (
+                                                <option value={s.category}>{s.category}</option>
+                                            )}
                                         </select>
                                     </div>
 

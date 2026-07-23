@@ -21,11 +21,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 
     // Shared by any staff role signed into this web app (admin or shop).
-    Route::middleware('auth')->post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
+    Route::match(['get', 'post'], '/logout', [AdminAuthController::class, 'destroy'])->name('logout');
 
     Route::middleware(['auth', 'role:admin'])->group(function () {
+        Route::get('/dashboard', fn () => redirect()->route('admin.orders.index'))->name('dashboard');
         // FR-ADM-002/019: order board with live alert queue.
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/live-map-data', [AdminOrderController::class, 'liveMapData'])->name('orders.live-map-data');
         // FR-ADM-003: manual order entry.
         Route::get('/orders/new', [AdminOrderController::class, 'create'])->name('orders.create');
         Route::post('/orders', [AdminOrderController::class, 'storeManual'])->name('orders.store');
@@ -67,7 +69,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/customers/{user}', [AdminCustomerController::class, 'update'])->name('customers.update');
         Route::delete('/customers/{user}', [AdminCustomerController::class, 'destroy'])->name('customers.destroy');
 
-        // FR-ADM-009: daily report + CSV export.
+        // FR-ADM-009: master reporting desk + daily + revenue + undelivered audit.
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/daily', [AdminReportController::class, 'daily'])->name('reports.daily');
         Route::get('/reports/daily/export', [AdminReportController::class, 'exportCsv'])->name('reports.daily.export');
         Route::get('/reports/revenue', [AdminReportController::class, 'revenue'])->name('reports.revenue');
@@ -89,5 +92,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // REQ-ADM-10: view captured leads (out-of-area booking attempts).
         Route::get('/leads', [AdminLeadController::class, 'index'])->name('leads.index');
+
+        // Customer Complaints & Issue Desk
+        Route::get('/complaints', [\App\Http\Controllers\Admin\AdminComplaintController::class, 'index'])->name('complaints.index');
+        Route::put('/complaints/{complaint}', [\App\Http\Controllers\Admin\AdminComplaintController::class, 'update'])->name('complaints.update');
     });
 });

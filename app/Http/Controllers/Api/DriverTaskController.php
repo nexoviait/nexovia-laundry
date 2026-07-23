@@ -140,6 +140,9 @@ class DriverTaskController extends Controller
             'otp' => ['required', 'string'],
             'payment_method' => ['required', 'string', 'in:cash'],
             'cod_amount' => ['required_if:payment_method,cash', 'nullable', 'numeric', 'min:0'],
+        ], [], [
+            'otp' => 'verification code',
+            'cod_amount' => 'cash collected amount',
         ]);
 
         if ($driverTask->otp_verified_at !== null || $driverTask->otp === null || $driverTask->otp !== $data['otp']) {

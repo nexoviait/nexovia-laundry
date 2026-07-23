@@ -14,7 +14,7 @@ class DriverTaskResource extends JsonResource
             'order_id' => $this->order_id,
             'type' => $this->type,
             'status' => $this->status,
-            'photos' => $this->photos,
+            'photos' => collect($this->photos ?? [])->map(fn (string $path) => \Illuminate\Support\Facades\Storage::disk('public')->url($path))->all(),
             'otp_verified_at' => $this->otp_verified_at,
             'gps_lat' => $this->gps_lat,
             'gps_lng' => $this->gps_lng,

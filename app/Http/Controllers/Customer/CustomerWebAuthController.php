@@ -37,7 +37,7 @@ class CustomerWebAuthController extends Controller
         $data = $request->validate([
             'phone' => self::PHONE_RULES,
             'otp' => ['required', 'string', 'digits:6'],
-            'name' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
         ]);
 
         $isValid = ($data['phone'] === '+447700900555' && $data['otp'] === '123456')
@@ -58,6 +58,10 @@ class CustomerWebAuthController extends Controller
             ]
         );
 
+        if (! empty($data['name'])) {
+            $user->update(['name' => $data['name']]);
+        }
+
         Auth::login($user, true);
 
         $request->session()->regenerate();
@@ -73,5 +77,29 @@ class CustomerWebAuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('success', 'Logged out successfully.');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'name'   => ['required', 'string', 'max:255'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+        ]);
+
+        $updateData = ['name' => $data['name']];
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && ! str_starts_with($user->avatar, 'http')) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $updateData['avatar'] = $path;
+        }
+
+        $user->update($updateData);
+
+        return back()->with('success', 'Profile avatar updated successfully!');
     }
 }

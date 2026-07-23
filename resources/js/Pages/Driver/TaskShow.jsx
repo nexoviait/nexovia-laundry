@@ -85,14 +85,14 @@ export default function TaskShow({ task, driver }) {
             <div className="flex items-center justify-between">
                 <Link
                     href="/driver/dashboard"
-                    className="flex items-center gap-1.5 text-xs font-extrabold text-slate-500 hover:text-orange-600 transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-orange-600 transition-colors"
                 >
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                     Dashboard
                 </Link>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg">
                     #{task.id} · {isPickup ? 'Collection' : 'Delivery'}
                 </span>
             </div>
@@ -104,7 +104,7 @@ export default function TaskShow({ task, driver }) {
                         isPickup ? 'bg-slate-100' : 'bg-orange-50'
                     }`}>
                         {isPickup ? (
-                            <svg className="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <svg className="h-6 w-6 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
                             </svg>
                         ) : (
@@ -115,19 +115,19 @@ export default function TaskShow({ task, driver }) {
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wider">
+                            <h2 className="font-bold text-slate-900 text-xs uppercase tracking-wider">
                                 {isPickup ? 'Collection Job' : 'Delivery Handover'}
                             </h2>
-                            <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider border ${
-                                isCompleted ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                : isFailed   ? 'bg-rose-50 text-rose-700 border-rose-100'
-                                : isEnRoute  ? 'bg-orange-50 text-orange-700 border-orange-100 animate-pulse'
-                                :              'bg-slate-100 text-slate-600 border-slate-200'
+                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider border ${
+                                isCompleted ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : isFailed   ? 'bg-rose-50 text-rose-800 border-rose-200'
+                                : isEnRoute  ? 'bg-orange-50 text-orange-700 border-orange-200 animate-pulse'
+                                :              'bg-slate-100 text-slate-700 border-slate-300'
                             }`}>
                                 {task.status.replace('_', ' ')}
                             </span>
                         </div>
-                        <p className="text-xs text-slate-400 font-bold mt-0.5">
+                        <p className="text-xs text-slate-600 font-medium mt-0.5">
                             Slot: {task.order?.time_slot?.window || 'Flexible'}
                         </p>
                     </div>
@@ -141,7 +141,7 @@ export default function TaskShow({ task, driver }) {
                                 <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${
                                     step.done
                                         ? 'bg-orange-500 text-white'
-                                        : 'bg-slate-100 text-slate-400 border border-slate-200'
+                                        : 'bg-slate-100 text-slate-500 border border-slate-200'
                                 }`}>
                                     {step.done ? (
                                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
@@ -149,10 +149,10 @@ export default function TaskShow({ task, driver }) {
                                         </svg>
                                     ) : i + 1}
                                 </div>
-                                <span className="text-[11px] font-bold text-slate-500 mt-1.5 text-center leading-tight">{step.label}</span>
+                                <span className="text-xs font-bold text-slate-700 mt-1.5 text-center leading-tight">{step.label}</span>
                             </div>
                             {i < steps.length - 1 && (
-                                <div className={`h-0.5 flex-1 mb-3 rounded-full mx-1 ${step.done ? 'bg-orange-400' : 'bg-slate-100'}`}></div>
+                                <div className={`h-0.5 flex-1 mb-3 rounded-full mx-1 ${step.done ? 'bg-orange-400' : 'bg-slate-200'}`}></div>
                             )}
                         </div>
                     ))}
@@ -163,25 +163,25 @@ export default function TaskShow({ task, driver }) {
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Customer</span>
-                        <p className="text-base font-normal text-slate-800">{task.order?.user?.name || '—'}</p>
-                        <p className="text-sm text-slate-500 font-medium">{task.order?.user?.phone || '—'}</p>
+                        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Customer</span>
+                        <p className="text-base font-semibold text-slate-900">{task.order?.user?.name || '—'}</p>
+                        <p className="text-sm text-slate-600 font-medium">{task.order?.user?.phone || '—'}</p>
                     </div>
                     <div className="space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Order Ref</span>
-                        <p className="text-base font-normal text-slate-800">#{task.order?.id}</p>
-                        <p className="text-sm text-slate-500 font-medium capitalize">{task.order?.status?.replace(/_/g, ' ')}</p>
+                        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Order Ref</span>
+                        <p className="text-base font-semibold text-slate-900">#{task.order?.id}</p>
+                        <p className="text-sm text-slate-600 font-medium capitalize">{task.order?.status?.replace(/_/g, ' ')}</p>
                     </div>
                 </div>
 
-                <div className="border-t border-slate-50 pt-3 space-y-2">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Dispatch Address</span>
-                    <p className="text-base font-normal text-slate-800">
+                <div className="border-t border-slate-100 pt-3 space-y-2">
+                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Dispatch Address</span>
+                    <p className="text-base font-semibold text-slate-900">
                         {task.order?.address?.postcode || '—'}
                         {task.order?.address?.label ? ` — ${task.order.address.label}` : ''}
                     </p>
                     {task.order?.address?.directions && (
-                        <p className="text-sm text-slate-500 font-medium bg-amber-50 border border-amber-100 rounded-xl p-2.5 italic">
+                        <p className="text-sm text-slate-700 font-medium bg-amber-50 border border-amber-200 rounded-xl p-2.5 italic">
                             📝 {task.order.address.directions}
                         </p>
                     )}
@@ -191,14 +191,14 @@ export default function TaskShow({ task, driver }) {
                         href={mapUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 w-full rounded-xl bg-slate-50 border border-slate-200 hover:bg-orange-50 hover:border-orange-200 px-3.5 py-2.5 text-xs font-bold text-slate-600 hover:text-orange-700 transition-colors mt-1"
+                        className="flex items-center gap-2 w-full rounded-xl bg-slate-100 border border-slate-200 hover:bg-orange-50 hover:border-orange-200 px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:text-orange-700 transition-colors mt-1"
                     >
-                        <svg className="h-4 w-4 text-orange-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <svg className="h-4 w-4 text-orange-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         Open in Maps
-                        <svg className="h-3 w-3 ml-auto text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <svg className="h-3 w-3 ml-auto text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
                     </a>
@@ -208,43 +208,57 @@ export default function TaskShow({ task, driver }) {
             {/* Order Items */}
             {task.order?.items?.length > 0 && (
                 <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-3">Order Items</h3>
+                    <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Order Items</h3>
                     <div className="space-y-2">
-                        {task.order.items.map((item, i) => (
-                            <div key={i} className="flex items-center justify-between text-xs py-2 border-b border-slate-50 last:border-0">
-                                <div className="flex items-center gap-2">
-                                    <span className="h-5 w-5 rounded-lg bg-orange-50 text-orange-700 flex items-center justify-center text-[9px] font-black shrink-0">
-                                        {item.qty}
+                        {task.order.items.map((item, i) => {
+                            const qty = parseFloat(item.qty || 1);
+                            const unitPrice = parseFloat(item.unit_price || 0);
+                            const lineTotal = parseFloat(item.line_total ?? (unitPrice * qty));
+
+                            return (
+                                <div key={i} className="flex items-center justify-between text-xs py-2.5 border-b border-slate-100 last:border-0">
+                                    <div className="flex items-center gap-2.5">
+                                        <span className="h-6 px-2 rounded-lg bg-orange-50 text-orange-800 border border-orange-200 flex items-center justify-center text-xs font-black shrink-0">
+                                            x{qty}
+                                        </span>
+                                        <div>
+                                            <p className="font-bold text-slate-900">{item.service?.name}</p>
+                                            {unitPrice > 0 && (
+                                                <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                                                    {currencySymbol}{unitPrice.toFixed(2)} / unit
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <span className="font-black text-slate-900 text-sm">
+                                        {currencySymbol}{lineTotal.toFixed(2)}
                                     </span>
-                                    <span className="font-semibold text-slate-700">{item.service?.name}</span>
                                 </div>
-                                <span className="font-extrabold text-slate-800">
-                                    {currencySymbol}{parseFloat(item.line_total ?? item.unit_price * item.qty ?? 0).toFixed(2)}
-                                </span>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
+
                     <div className="space-y-1.5 pt-3 border-t border-slate-100 mt-2">
-                        <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
                             <span>Subtotal</span>
                             <span>{currencySymbol}{parseFloat(task.order?.subtotal || 0).toFixed(2)}</span>
                         </div>
                         {parseFloat(task.order?.discount || 0) > 0 && (
-                            <div className="flex items-center justify-between text-xs font-semibold text-emerald-600">
+                            <div className="flex items-center justify-between text-xs font-semibold text-emerald-700">
                                 <span>Discount</span>
                                 <span>-{currencySymbol}{parseFloat(task.order?.discount || 0).toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
                             <span>VAT</span>
                             <span>{currencySymbol}{parseFloat(task.order?.vat || 0).toFixed(2)}</span>
                         </div>
-                        <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
                             <span>Delivery Fee</span>
                             <span>{currencySymbol}{parseFloat(task.order?.delivery_fee || 0).toFixed(2)}</span>
                         </div>
                         <div className="flex items-center justify-between text-xs font-black pt-1.5 border-t border-slate-100 mt-1.5">
-                            <span className="text-slate-500">Total</span>
+                            <span className="text-slate-700">Total</span>
                             <span className="text-slate-900 text-base">{currencySymbol}{parseFloat(task.order?.total || 0).toFixed(2)}</span>
                         </div>
                     </div>
@@ -291,7 +305,7 @@ export default function TaskShow({ task, driver }) {
 
                     {/* 1. PICKUP FORM */}
                     {isPickup && (
-                        <form onSubmit={handlePickup} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-5">
+                        <form onSubmit={handlePickup} noValidate className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-5">
                             <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                                 <svg className="h-4 w-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
@@ -301,22 +315,22 @@ export default function TaskShow({ task, driver }) {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item Count</label>
+                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Item Count</label>
                                     <input
                                         type="number"
                                         required
                                         min="0"
                                         value={pickupForm.data.item_count}
                                         onChange={e => pickupForm.setData('item_count', e.target.value)}
-                                        className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 rounded-xl py-2.5 px-3 text-sm font-extrabold text-slate-800 focus:outline-none transition-colors"
+                                        className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 rounded-xl py-2.5 px-3 text-sm font-semibold text-slate-900 focus:outline-none transition-colors"
                                     />
                                     {pickupForm.errors.item_count && (
-                                        <p className="text-[10px] text-red-600 font-bold">{pickupForm.errors.item_count}</p>
+                                        <p className="text-xs text-red-600 font-bold">{pickupForm.errors.item_count}</p>
                                     )}
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Weight (KG)</label>
+                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Weight (KG)</label>
                                     <input
                                         type="number"
                                         step="0.01"
@@ -324,16 +338,16 @@ export default function TaskShow({ task, driver }) {
                                         placeholder="Optional"
                                         value={pickupForm.data.weight}
                                         onChange={e => pickupForm.setData('weight', e.target.value)}
-                                        className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 rounded-xl py-2.5 px-3 text-sm font-extrabold text-slate-800 focus:outline-none transition-colors"
+                                        className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 rounded-xl py-2.5 px-3 text-sm font-semibold text-slate-900 focus:outline-none transition-colors"
                                     />
                                     {pickupForm.errors.weight && (
-                                        <p className="text-[10px] text-red-600 font-bold">{pickupForm.errors.weight}</p>
+                                        <p className="text-xs text-red-600 font-bold">{pickupForm.errors.weight}</p>
                                     )}
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                                     Proof Photos (1–4 required)
                                 </label>
                                 <input
@@ -342,13 +356,13 @@ export default function TaskShow({ task, driver }) {
                                     accept="image/*"
                                     required
                                     onChange={handlePhotoChange}
-                                    className="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                                    className="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
                                 />
                                 {pickupForm.errors.photos && (
-                                    <p className="text-[10px] text-red-600 font-bold">{pickupForm.errors.photos}</p>
+                                    <p className="text-xs text-red-600 font-bold">{pickupForm.errors.photos}</p>
                                 )}
                                 {pickupForm.errors['photos.0'] && (
-                                    <p className="text-[10px] text-red-600 font-bold">Please select a valid image file.</p>
+                                    <p className="text-xs text-red-600 font-bold">Please select a valid image file.</p>
                                 )}
 
                                 {/* Photo previews */}
@@ -396,7 +410,7 @@ export default function TaskShow({ task, driver }) {
                                         </svg>
                                         Start Delivery Run
                                     </h3>
-                                    <p className="text-xs text-slate-400 font-semibold leading-relaxed bg-slate-50 rounded-xl p-3">
+                                    <p className="text-xs text-slate-600 font-medium leading-relaxed bg-slate-50 rounded-xl p-3 border border-slate-100">
                                         Tapping below will mark this delivery as en-route and send a 4-digit OTP to the customer via SMS to confirm handover.
                                     </p>
                                     <button
@@ -414,16 +428,16 @@ export default function TaskShow({ task, driver }) {
 
                             {/* Step 2 — verify OTP + collect COD */}
                             {isEnRoute && (
-                                <form onSubmit={handleDeliver} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-5">
+                                <form onSubmit={handleDeliver} noValidate className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-5">
                                     <div className="flex items-center gap-2">
-                                        <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></span>
+                                        <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
                                         <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
                                             Confirm Customer Handover
                                         </h3>
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                        <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                                             Customer Handover OTP (4-digit)
                                         </label>
                                         <input
@@ -438,24 +452,24 @@ export default function TaskShow({ task, driver }) {
                                                 deliverForm.errors.otp
                                                     ? 'border-red-300 focus:border-red-500'
                                                     : 'border-slate-200 focus:border-orange-500 focus:ring-orange-100'
-                                            } focus:bg-white focus:ring-2 rounded-xl py-3.5 px-3 text-xl font-black text-slate-800 tracking-[0.5em] text-center focus:outline-none transition-colors`}
+                                            } focus:bg-white focus:ring-2 rounded-xl py-3.5 px-3 text-xl font-black text-slate-900 tracking-[0.5em] text-center focus:outline-none transition-colors`}
                                         />
                                         {deliverForm.errors.otp && (
-                                            <p className="text-[10px] text-red-600 font-bold text-center">{deliverForm.errors.otp}</p>
+                                            <p className="text-xs text-red-600 font-bold text-center">{deliverForm.errors.otp}</p>
                                         )}
                                     </div>
 
                                     {/* COD section */}
-                                    <div className="border-t border-slate-50 pt-4 space-y-3">
-                                        <h4 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Cash on Delivery</h4>
+                                    <div className="border-t border-slate-100 pt-4 space-y-3">
+                                        <h4 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Cash on Delivery</h4>
                                         <div className="flex items-center justify-between text-xs bg-orange-50 border border-orange-100 rounded-xl p-3">
-                                            <span className="text-orange-700 font-bold">Invoice Total</span>
-                                            <span className="text-orange-900 font-black text-base">
+                                            <span className="text-orange-800 font-bold">Invoice Total</span>
+                                            <span className="text-orange-950 font-black text-base">
                                                 {currencySymbol}{parseFloat(task.order?.total || 0).toFixed(2)}
                                             </span>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">
                                                 Cash Collected ({currencySymbol})
                                             </label>
                                             <input
@@ -464,8 +478,11 @@ export default function TaskShow({ task, driver }) {
                                                 required
                                                 value={deliverForm.data.cod_amount}
                                                 onChange={e => deliverForm.setData('cod_amount', e.target.value)}
-                                                className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 rounded-xl py-2.5 px-3 text-sm font-extrabold text-slate-800 focus:outline-none transition-colors"
+                                                className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-100 rounded-xl py-2.5 px-3 text-sm font-semibold text-slate-900 focus:outline-none transition-colors"
                                             />
+                                            {deliverForm.errors.cod_amount && (
+                                                <p className="text-xs text-red-600 font-bold">{deliverForm.errors.cod_amount}</p>
+                                            )}
                                         </div>
                                     </div>
 
@@ -501,7 +518,7 @@ export default function TaskShow({ task, driver }) {
                         <button
                             type="button"
                             onClick={() => setShowFailPanel(!showFailPanel)}
-                            className="w-full text-center text-xs font-bold text-slate-400 hover:text-red-500 transition-colors py-1 flex items-center justify-center gap-1.5"
+                            className="w-full text-center text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors py-1 flex items-center justify-center gap-1.5"
                         >
                             {showFailPanel ? (
                                 <>
@@ -521,7 +538,7 @@ export default function TaskShow({ task, driver }) {
                         </button>
 
                         {showFailPanel && (
-                            <form onSubmit={handleFail} className="rounded-3xl border border-red-200 bg-red-50/20 p-5 space-y-3">
+                            <form onSubmit={handleFail} noValidate className="rounded-3xl border border-red-200 bg-red-50/20 p-5 space-y-3">
                                 <h4 className="text-xs font-extrabold text-red-700 uppercase tracking-wider">Report Task Issue</h4>
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Reason</label>

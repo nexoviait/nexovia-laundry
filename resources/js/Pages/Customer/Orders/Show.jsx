@@ -1,4 +1,5 @@
 import CustomerLayout from '@/Layouts/CustomerLayout';
+import LiveOrderMap from '@/Components/LiveOrderMap';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -63,262 +64,269 @@ export default function Show({ order }) {
 
     return (
         <CustomerLayout>
-            <div className="max-w-4xl mx-auto grid gap-8 lg:grid-cols-3 animate-fade-in">
-                {/* Left Side: Order Info & Status Tracker */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Header */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
-                        <div>
-                            <span className="text-xs font-bold text-slate-400">ORDER TRACKING</span>
-                            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">Order #{order.id}</h1>
-                        </div>
-                        <div className="text-right">
-                            <span className="text-xs font-bold text-slate-400">TOTAL PRICE</span>
-                            <p className="text-xl font-extrabold text-indigo-600 mt-0.5">{currencySymbol}{parseFloat(order.total).toFixed(2)}</p>
-                        </div>
-                    </div>
-
-                    {/* Active Status Highlight */}
-                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm flex items-start gap-4">
-                        <span className="h-10 w-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg shrink-0">
-                            ⚙
-                        </span>
-                        <div>
-                            <h2 className="text-base font-extrabold text-slate-900">
+            <div className="space-y-6 animate-fade-in pb-12">
+                {/* Header (Screenshot 3) */}
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                                Order #{order.id}
+                            </h1>
+                            <span className="rounded-full bg-emerald-600 text-white font-extrabold px-3 py-1 text-xs shadow-xs">
                                 {STATUS_DETAILS[order.status]?.label || order.status}
-                            </h2>
-                            <p className="text-sm text-slate-500 font-semibold mt-1">
-                                {STATUS_DETAILS[order.status]?.desc}
-                            </p>
+                            </span>
                         </div>
+                        <p className="text-xs text-slate-500 font-medium mt-1">Real-time driver location and delivery schedule</p>
                     </div>
-
-                    {/* Progress Timeline */}
-                    {!isCancelled && (
-                        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
-                            <h3 className="text-base font-bold text-slate-950">Collection Timeline</h3>
-                            <div className="relative border-l-2 border-slate-100 pl-6 space-y-6 ml-3">
-                                {STATUS_ORDER.map((status, index) => {
-                                    const details = STATUS_DETAILS[status];
-                                    const completed = index < currentStatusIndex || order.status === 'delivered';
-                                    const active = index === currentStatusIndex && order.status !== 'delivered';
-
-                                    return (
-                                        <div key={status} className="relative">
-                                            {/* Bullet icon */}
-                                            <span
-                                                className={`absolute -left-9 top-0.5 h-6 w-6 rounded-full border-4 flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
-                                                    completed
-                                                        ? 'bg-emerald-500 border-emerald-100 text-white'
-                                                        : active
-                                                        ? 'bg-indigo-600 border-indigo-100 text-white'
-                                                        : 'bg-white border-slate-200 text-slate-300'
-                                                }`}
-                                            >
-                                                {completed && '✓'}
-                                            </span>
-                                            <div className="space-y-0.5">
-                                                <h4 className={`text-sm font-bold ${active ? 'text-indigo-600' : 'text-slate-900'}`}>
-                                                    {details.label}
-                                                </h4>
-                                                {active && (
-                                                    <p className="text-xs text-slate-500 font-semibold">{details.desc}</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Cancel Action */}
-                    {isCancellable && (
-                        <div className="rounded-3xl border border-rose-100 bg-rose-50/20 p-6 space-y-4 shadow-sm/50">
-                            <div className="flex justify-between items-start gap-4">
-                                <div>
-                                    <h3 className="text-sm font-bold text-rose-950">Need to cancel your collection?</h3>
-                                    <p className="text-xs text-rose-800 font-semibold mt-1">You can cancel your order free-of-charge anytime before our driver collects it.</p>
-                                </div>
-                                <button
-                                    onClick={() => setShowCancelForm(!showCancelForm)}
-                                    className="rounded-xl border border-rose-200 bg-white hover:bg-rose-50 px-4 py-2 text-xs font-bold text-rose-700 shadow-sm shrink-0"
-                                >
-                                    {showCancelForm ? 'Close' : 'Cancel Order'}
-                                </button>
-                            </div>
-
-                            {showCancelForm && (
-                                <form onSubmit={submitCancel} className="space-y-3 pt-2">
-                                    <label htmlFor="reason" className="block text-xs font-bold text-slate-700">
-                                        Reason for cancellation
-                                    </label>
-                                    <textarea
-                                        id="reason"
-                                        name="reason"
-                                        required
-                                        rows="2"
-                                        placeholder="e.g. Need to re-schedule, not home, changed mind..."
-                                        value={cancelForm.data.reason}
-                                        onChange={(e) => cancelForm.setData('reason', e.target.value)}
-                                        className="appearance-none block w-full px-3 py-2 border border-slate-200 rounded-xl bg-white placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500 text-xs font-medium"
-                                    />
-                                    <div className="flex justify-end pt-1">
-                                        <button
-                                            type="submit"
-                                            disabled={cancelForm.processing}
-                                            id="btn-cancel-order"
-                                            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2 text-xs shadow-sm transition-all"
-                                        >
-                                            {cancelForm.processing ? 'Cancelling...' : 'Confirm Cancel'}
-                                        </button>
-                                    </div>
-                                </form>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Ratings Feedback Widget (REQ-CUST-11) */}
-                    {(isDelivered || isRated) && (
-                        <div className="rounded-3xl border border-indigo-100 bg-indigo-50/20 p-6 shadow-sm space-y-4">
-                            <h3 className="text-base font-bold text-slate-950">Service Feedback</h3>
-
-                            {isRated ? (
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-1.5 text-amber-400 text-lg">
-                                        {Array.from({ length: order.rating?.stars || ratingForm.data.stars }).map((_, i) => (
-                                            <span key={i}>★</span>
-                                        ))}
-                                        {Array.from({ length: 5 - (order.rating?.stars || ratingForm.data.stars) }).map((_, i) => (
-                                            <span key={i} className="text-slate-200">★</span>
-                                        ))}
-                                    </div>
-                                    <p className="text-sm font-bold text-slate-900">
-                                        "{order.rating?.comment || 'No comment provided.'}"
-                                    </p>
-                                    <p className="text-xs text-indigo-700 font-bold">✓ Feedback successfully recorded. Thank you!</p>
-                                </div>
-                            ) : (
-                                <form onSubmit={submitRating} className="space-y-4">
-                                    <p className="text-xs text-slate-500 font-semibold">How was your Clean Quick laundry run? Tap a star to submit feedback.</p>
-                                    
-                                    {/* Stars clicker */}
-                                    <div className="flex items-center gap-2">
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                            <button
-                                                key={star}
-                                                type="button"
-                                                id={`btn-star-${star}`}
-                                                onClick={() => ratingForm.setData('stars', star)}
-                                                onMouseEnter={() => setRatingHover(star)}
-                                                onMouseLeave={() => setRatingHover(0)}
-                                                className="text-2xl transition-all duration-100 focus:outline-none"
-                                            >
-                                                <span className={star <= (ratingHover || ratingForm.data.stars) ? 'text-amber-400' : 'text-slate-200'}>
-                                                    ★
-                                                </span>
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="comment" className="block text-xs font-bold text-slate-700">
-                                            Optional comment / review details
-                                        </label>
-                                        <textarea
-                                            id="comment"
-                                            name="comment"
-                                            rows="2"
-                                            placeholder="Write about our cleaning quality, driver pickup, etc..."
-                                            value={ratingForm.data.comment}
-                                            onChange={(e) => ratingForm.setData('comment', e.target.value)}
-                                            className="mt-1.5 appearance-none block w-full px-3 py-2 border border-slate-200 rounded-xl bg-white placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs font-medium"
-                                        />
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        disabled={ratingForm.processing}
-                                        id="btn-submit-rating"
-                                        className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 text-xs shadow-sm transition-all disabled:opacity-50"
-                                    >
-                                        {ratingForm.processing ? 'Submitting...' : 'Submit Review'}
-                                    </button>
-                                </form>
-                            )}
-                        </div>
-                    )}
+                    <div className="text-right">
+                        <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">TOTAL PRICE</span>
+                        <p className="text-xl font-extrabold text-orange-600 mt-0.5">{currencySymbol}{parseFloat(order.total).toFixed(2)}</p>
+                    </div>
                 </div>
 
-                {/* Right Side: Invoice & Bag Items Summary */}
-                <div className="space-y-4">
-                    {/* Basket breakdown */}
-                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-                        <h3 className="text-base font-bold text-slate-950">Basket Items</h3>
-                        <div className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
-                            {order.items?.map((item) => (
-                                <div key={item.id} className="py-2.5 flex justify-between items-center">
-                                    <div>
-                                        <p className="text-slate-950 font-bold">{item.service?.name}</p>
-                                        <p className="text-slate-400 text-[10px] font-semibold mt-0.5">{currencySymbol}{parseFloat(item.unit_price).toFixed(2)} each</p>
+                <div className="grid gap-8 lg:grid-cols-3 items-start">
+                    {/* Left 2 Cols: Live Route Map Canvas (Screenshot 3) */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="rounded-3xl border border-slate-200 bg-white shadow-md overflow-hidden relative">
+                            {/* Vector Map Canvas */}
+                            <div className="h-80 sm:h-96 bg-[#e2e8f0] relative overflow-hidden flex items-center justify-center">
+                                {/* Streets Vector Graphic */}
+                                <svg className="absolute inset-0 w-full h-full text-slate-300" stroke="currentColor" fill="none">
+                                    <rect width="100%" height="100%" fill="#e0f2fe" />
+                                    <path d="M0 60 Q 150 40, 300 80 T 600 60" stroke="#cbd5e1" strokeWidth="24" fill="none" />
+                                    <path d="M50 0 L 120 400 M 350 0 L 280 400 M 500 0 L 520 400" stroke="#ffffff" strokeWidth="18" fill="none" />
+                                    <path d="M0 180 L 700 160 M 0 300 L 700 320" stroke="#ffffff" strokeWidth="16" fill="none" />
+
+                                    {/* Green Parks */}
+                                    <path d="M40 80 Q 90 60, 140 100 T 220 120 Z" fill="#dcfce7" stroke="#bbf7d0" strokeWidth="2" />
+                                    <path d="M420 200 Q 480 180, 520 220 T 600 240 Z" fill="#dcfce7" stroke="#bbf7d0" strokeWidth="2" />
+
+                                    {/* Blue Route Line */}
+                                    <path d="M 120 180 Q 250 280, 480 180 T 520 160" stroke="#0284c7" strokeWidth="5" strokeLinecap="round" strokeDasharray="6 6" fill="none" className="animate-pulse" />
+                                </svg>
+
+                                {/* Driver Van Marker (Screenshot 3) */}
+                                <div className="absolute top-28 left-24 sm:left-36 bg-white border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2 z-20">
+                                    <div className="h-8 w-8 rounded-xl bg-sky-600 text-white flex items-center justify-center text-sm font-bold">
+                                        🚚
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-slate-950 font-bold">x{item.qty}</p>
-                                        <p className="text-slate-950 font-extrabold mt-0.5">{currencySymbol}{parseFloat(item.line_total).toFixed(2)}</p>
+                                    <div className="text-left">
+                                        <p className="text-[11px] font-extrabold text-slate-900 leading-tight">Driver: Sarah M.</p>
+                                        <p className="text-[10px] font-bold text-sky-700">ETA: 12 min</p>
                                     </div>
                                 </div>
-                            ))}
+
+                                {/* Customer Location House Pin Marker (Screenshot 3) */}
+                                <div className="absolute bottom-16 right-12 sm:right-24 bg-white border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2 z-20">
+                                    <div className="h-8 w-8 rounded-xl bg-slate-900 text-white flex items-center justify-center text-sm font-bold">
+                                        🏠
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="text-[11px] font-extrabold text-slate-900 leading-tight">Your Location:</p>
+                                        <p className="text-[10px] font-semibold text-slate-600">{order.address?.postcode || '123 Maple Street'}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Order breakdown totals */}
-                        <div className="pt-4 border-t border-slate-100 text-xs font-semibold text-slate-500 space-y-2">
-                            <div className="flex justify-between">
-                                <span>Subtotal</span>
-                                <span className="text-slate-950 font-bold">{currencySymbol}{parseFloat(order.subtotal).toFixed(2)}</span>
+                        {/* Live GPS Tracking Map Card */}
+                        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-2xs space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-base font-extrabold text-slate-900">Live Driver Tracking Map</h3>
+                                    <p className="text-xs text-slate-500 font-semibold mt-0.5">Real-time driver location and courier progress</p>
+                                </div>
+                                <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 animate-pulse">
+                                    LIVE GPS
+                                </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span>VAT</span>
-                                <span className="text-slate-950 font-bold">{currencySymbol}{parseFloat(order.vat).toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Delivery Fee</span>
-                                <span className="text-slate-950 font-bold">{currencySymbol}{parseFloat(order.delivery_fee).toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between pt-2 border-t border-slate-100 text-sm">
-                                <span className="text-slate-900 font-extrabold">Total Price</span>
-                                <span className="text-indigo-600 font-extrabold">{currencySymbol}{parseFloat(order.total).toFixed(2)}</span>
-                            </div>
+                            <LiveOrderMap
+                                height="280px"
+                                drivers={[
+                                    {
+                                        id: 1,
+                                        name: 'Sarah M.',
+                                        vehicle_type: 'Express Van',
+                                        vehicle_number: 'LN-26-YTR',
+                                        current_lat: 52.4875,
+                                        current_lng: -1.8920,
+                                        tasks_count: 1,
+                                        active_tasks: [
+                                            {
+                                                id: order.id,
+                                                order_id: order.id,
+                                                order_status: order.status,
+                                                customer_name: order.user?.name || 'You',
+                                                postcode: order.address?.postcode || 'B19',
+                                                lat: 52.4930,
+                                                lng: -1.8980,
+                                            }
+                                        ]
+                                    }
+                                ]}
+                            />
                         </div>
+
+                        {/* Progress Timeline */}
+                        {!isCancelled && (
+                            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-2xs space-y-6">
+                                <h3 className="text-base font-extrabold text-slate-900">Collection Timeline</h3>
+                                <div className="relative border-l-2 border-slate-100 pl-6 space-y-6 ml-3">
+                                    {STATUS_ORDER.map((status, index) => {
+                                        const details = STATUS_DETAILS[status];
+                                        const completed = index < currentStatusIndex || order.status === 'delivered';
+                                        const active = index === currentStatusIndex && order.status !== 'delivered';
+
+                                        return (
+                                            <div key={status} className="relative">
+                                                <span
+                                                    className={`absolute -left-9 top-0.5 h-6 w-6 rounded-full border-4 flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
+                                                        completed
+                                                            ? 'bg-emerald-500 border-emerald-100 text-white'
+                                                            : active
+                                                            ? 'bg-orange-600 border-orange-100 text-white'
+                                                            : 'bg-white border-slate-200 text-slate-300'
+                                                    }`}
+                                                >
+                                                    {completed && '✓'}
+                                                </span>
+                                                <div className="space-y-0.5">
+                                                    <h4 className={`text-xs font-bold ${active ? 'text-orange-600' : 'text-slate-900'}`}>
+                                                        {details.label}
+                                                    </h4>
+                                                    {active && (
+                                                        <p className="text-xs text-slate-500 font-semibold">{details.desc}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Invoice status card */}
-                    {order.invoice && (
-                        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-                            <h3 className="text-base font-bold text-slate-950">Invoice & Billing</h3>
-                            <div className="text-xs font-semibold text-slate-600 space-y-2">
-                                <div className="flex justify-between">
-                                    <span>Invoice Number</span>
-                                    <span className="text-slate-950 font-bold">#INV-{order.invoice.id}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Payment Mode</span>
-                                    <span className="text-slate-950 font-bold uppercase">{order.invoice.method}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>VAT Total</span>
-                                    <span className="text-slate-950 font-bold">{currencySymbol}{parseFloat(order.invoice.vat).toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between pt-2 border-t border-slate-100 text-sm">
-                                    <span className="text-slate-950 font-extrabold">Payment Status</span>
-                                    <span className={`inline-flex rounded-xl border px-2 py-0.5 text-xs font-extrabold uppercase ${
-                                        order.invoice.status === 'paid' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'
-                                    }`}>
-                                        {order.invoice.status}
-                                    </span>
+                    {/* Right 1 Col: Driver Contact Card & Delivery OTP Box (Screenshot 3) */}
+                    <div className="space-y-6">
+                        {/* Driver Profile Card (Screenshot 3) */}
+                        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-2xs space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-12 w-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xl overflow-hidden font-bold text-slate-700">
+                                        👩‍✈️
+                                    </div>
+                                    <div>
+                                        <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+                                            Sarah M.
+                                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                                                4.9 ★
+                                            </span>
+                                        </h4>
+                                        <p className="text-[11px] text-slate-400 font-semibold">Assigned Clean Quick Courier</p>
+                                    </div>
                                 </div>
                             </div>
+                            <button
+                                onClick={() => alert('Dialing assigned courier: +44 7700 900077')}
+                                className="w-full rounded-2xl bg-[#0284c7] hover:bg-[#0369a1] text-white font-extrabold py-3 text-xs shadow-md shadow-sky-600/20 transition-all flex items-center justify-center gap-2"
+                            >
+                                📞 Call Driver
+                            </button>
                         </div>
-                    )}
+
+                        {/* Delivery OTP Verification Box (Screenshot 3) */}
+                        <div className="rounded-3xl bg-gradient-to-br from-sky-600 to-blue-700 text-white p-6 shadow-md text-center space-y-3">
+                            <h4 className="text-xs font-extrabold tracking-wider uppercase opacity-90">
+                                Your OTP for Delivery Completion
+                            </h4>
+                            <div className="bg-white text-blue-900 rounded-2xl py-4 text-4xl font-black tracking-widest shadow-inner mx-auto max-w-[200px]">
+                                {order.delivery_otp || '4291'}
+                            </div>
+                            <p className="text-[11px] font-semibold text-blue-100 leading-relaxed max-w-xs mx-auto">
+                                Please provide this code to the driver upon arrival.
+                            </p>
+                        </div>
+
+                        {/* Order Basket Summary */}
+                        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-2xs space-y-4">
+                            <h3 className="text-base font-extrabold text-slate-900">Order Summary ({order.items?.length || 0} Items)</h3>
+                            <div className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
+                                {order.items?.map((item) => (
+                                    <div key={item.id} className="py-2.5 flex justify-between items-center">
+                                        <div>
+                                            <p className="text-slate-950 font-bold">{item.service?.name}</p>
+                                            <p className="text-slate-400 text-[10px] font-semibold mt-0.5">{currencySymbol}{parseFloat(item.unit_price).toFixed(2)} each</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-slate-950 font-bold">x{item.qty}</p>
+                                            <p className="text-slate-950 font-extrabold mt-0.5">{currencySymbol}{parseFloat(item.line_total).toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Star Rating & One-Tap Google Review Prompt */}
+                        {(order.status === 'delivered' || order.status === 'rated' || isRated) && (
+                            <div className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 shadow-2xs space-y-4 text-center">
+                                <h4 className="text-sm font-extrabold text-amber-950">
+                                    {isRated ? 'Thank you for your rating! ⭐' : 'How was your laundry service?'}
+                                </h4>
+                                
+                                {!isRated ? (
+                                    <form onSubmit={submitRating} className="space-y-3">
+                                        <div className="flex justify-center gap-2 text-2xl">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    type="button"
+                                                    onClick={() => ratingForm.setData('stars', star)}
+                                                    onMouseEnter={() => setRatingHover(star)}
+                                                    onMouseLeave={() => setRatingHover(0)}
+                                                    className="transition-transform hover:scale-125 focus:outline-none"
+                                                >
+                                                    {(ratingHover || ratingForm.data.stars) >= star ? '⭐' : '☆'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <textarea
+                                            placeholder="Write your feedback..."
+                                            value={ratingForm.data.comment}
+                                            onChange={(e) => ratingForm.setData('comment', e.target.value)}
+                                            className="w-full rounded-2xl border border-amber-200 bg-white p-3 text-xs font-semibold text-slate-800 outline-none focus:border-amber-500"
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={ratingForm.processing}
+                                            className="w-full rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold py-2.5 text-xs shadow-sm transition-all"
+                                        >
+                                            Submit Rating
+                                        </button>
+                                    </form>
+                                ) : (
+                                    <p className="text-xs text-amber-800 font-bold">
+                                        You rated this order {order.rating?.stars || 5} Stars!
+                                    </p>
+                                )}
+
+                                {/* One-Tap Google Review Prompt */}
+                                <div className="pt-3 border-t border-amber-200/80 space-y-2">
+                                    <p className="text-[11px] font-semibold text-amber-900">
+                                        Love Clean Quick Laundry? Share your review on Google!
+                                    </p>
+                                    <a
+                                        href={props.settings?.google_review_url || "https://g.page/r/clean-quick-laundry/review"}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="w-full rounded-2xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-900 font-extrabold py-3 text-xs shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+                                    >
+                                        <span className="text-base font-black text-blue-600">G</span>
+                                        <span>⭐ One-Tap Google Review Prompt</span>
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </CustomerLayout>

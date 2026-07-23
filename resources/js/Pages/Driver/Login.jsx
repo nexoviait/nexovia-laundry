@@ -84,19 +84,19 @@ export default function DriverLogin() {
                     </div>
 
                     <div className="mb-8">
-                        <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">Driver Sign In</h1>
-                        <p className="mt-1.5 text-slate-400 text-sm">
+                        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Driver Sign In</h1>
+                        <p className="mt-1.5 text-slate-600 text-sm font-medium">
                             Secure access for authorized personnel only
                         </p>
                     </div>
 
-                    <form onSubmit={submit} className="space-y-5">
+                    <form onSubmit={submit} noValidate className="space-y-5">
                         <div>
-                            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
                                 Driver ID / Email Address
                             </label>
                             <div className="relative">
-                                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                                 <input
@@ -110,11 +110,11 @@ export default function DriverLogin() {
                                         errors.email
                                             ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
                                             : 'border-slate-200 focus:border-orange-500 focus:ring-orange-100'
-                                    } pl-10 pr-4 py-3 text-sm text-slate-800 transition-all focus:outline-none focus:ring-4 focus:bg-white bg-slate-50`}
+                                    } pl-10 pr-4 py-3 text-sm text-slate-900 font-semibold transition-all focus:outline-none focus:ring-4 focus:bg-white bg-slate-50`}
                                 />
                             </div>
                             {errors.email && (
-                                <p className="mt-2 text-xs text-red-600 font-medium flex items-center gap-1.5">
+                                <p className="mt-2 text-xs text-red-600 font-bold flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-600 inline-block"></span>
                                     {errors.email}
                                 </p>
@@ -123,15 +123,15 @@ export default function DriverLogin() {
 
                         <div>
                             <div className="flex items-center justify-between mb-2">
-                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">
                                     Password
                                 </label>
-                                <a href="#" className="text-xs font-medium text-orange-600 hover:text-orange-700">
+                                <a href="#" className="text-xs font-bold text-orange-600 hover:text-orange-700">
                                     Forgot Password?
                                 </a>
                             </div>
                             <div className="relative">
-                                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                                 <input
@@ -144,11 +144,11 @@ export default function DriverLogin() {
                                         errors.password
                                             ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
                                             : 'border-slate-200 focus:border-orange-500 focus:ring-orange-100'
-                                    } pl-10 pr-4 py-3 text-sm text-slate-800 transition-all focus:outline-none focus:ring-4 focus:bg-white bg-slate-50`}
+                                    } pl-10 pr-4 py-3 text-sm text-slate-900 font-semibold transition-all focus:outline-none focus:ring-4 focus:bg-white bg-slate-50`}
                                 />
                             </div>
                             {errors.password && (
-                                <p className="mt-2 text-xs text-red-600 font-medium flex items-center gap-1.5">
+                                <p className="mt-2 text-xs text-red-600 font-bold flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-red-600 inline-block"></span>
                                     {errors.password}
                                 </p>
@@ -162,7 +162,7 @@ export default function DriverLogin() {
                                 onChange={e => setRemember(e.target.checked)}
                                 className="h-3.5 w-3.5 rounded border-slate-300 text-orange-600 focus:ring-orange-200"
                             />
-                            <span className="text-xs text-slate-500">Remember this device for 24 hours</span>
+                            <span className="text-xs text-slate-600 font-medium">Remember this device for 24 hours</span>
                         </label>
 
                         <button

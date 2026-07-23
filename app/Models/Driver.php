@@ -16,12 +16,18 @@ class Driver extends Model
         'vehicle_type',
         'vehicle_number',
         'active',
+        'current_lat',
+        'current_lng',
+        'last_location_updated_at',
     ];
 
     protected function casts(): array
     {
         return [
             'active' => 'boolean',
+            'current_lat' => 'float',
+            'current_lng' => 'float',
+            'last_location_updated_at' => 'datetime',
         ];
     }
 

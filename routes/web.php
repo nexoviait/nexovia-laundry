@@ -10,7 +10,7 @@ Route::get('/', function (Request $request) {
     }
 
     $user = $request->user();
-    if ($user->role === 'admin') {
+    if (in_array($user->role, ['admin', 'super_admin', 'business_client'], true)) {
         return redirect()->route('admin.orders.index');
     }
     if ($user->role === 'shop') {

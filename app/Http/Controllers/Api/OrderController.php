@@ -110,6 +110,12 @@ class OrderController extends Controller
             'items' => ['required', 'array', 'min:1'],
             'items.*.service_id' => ['required', 'integer'],
             'items.*.qty' => ['required', 'numeric', 'min:0.01'],
+        ], [], [
+            'address_id' => 'pickup address',
+            'time_slot_id' => 'pickup time slot',
+            'items' => 'basket items',
+            'items.*.service_id' => 'service',
+            'items.*.qty' => 'quantity',
         ]);
 
         $user = $request->user();

@@ -110,4 +110,25 @@ class CustomerWebOrderController extends Controller
 
         return back()->with('success', 'Thank you for your rating!');
     }
+
+    public function complaint(Request $request, Order $order)
+    {
+        if ($order->user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'subject' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $order->complaints()->create([
+            'user_id' => $request->user()->id,
+            'subject' => $data['subject'],
+            'description' => $data['description'],
+            'status' => 'pending',
+        ]);
+
+        return back()->with('success', 'Your issue report has been submitted. Support team will inspect shortly.');
+    }
 }

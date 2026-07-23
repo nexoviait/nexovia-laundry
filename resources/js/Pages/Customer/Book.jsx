@@ -3,28 +3,18 @@ import { useForm, usePage, Link } from '@inertiajs/react';
 import { useMemo, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Service icons helper
+// Service icons helper with rich emoji badges
 const SERVICE_ICONS = {
-    Shirt: (
-        <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
-    ),
-    Trousers: (
-        <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-    ),
-    Bedsheet: (
-        <svg className="h-6 w-6 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-    ),
-    default: (
-        <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-        </svg>
-    )
+    Shirt: '👕',
+    Trousers: '👖',
+    Bedsheet: '🛏️',
+    Dress: '👗',
+    Duvet: '🛌',
+    'Duvet (wash & dry)': '🛌',
+    Jacket: '🧥',
+    Panjabi: '👔',
+    panjabi: '👔',
+    default: '🧺'
 };
 
 export default function Book({ services, addresses, timeSlots, reorderItems }) {
@@ -137,7 +127,10 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
         const delayDebounce = setTimeout(async () => {
             setEstimating(true);
             try {
-                const response = await axios.post('/book/estimate', { items: data.items });
+                const response = await axios.post('/book/estimate', {
+                    items: data.items,
+                    address_id: data.address_id || null,
+                });
                 setEstimate(response.data);
             } catch (err) {
                 console.error('Pricing estimate error:', err);
@@ -147,83 +140,127 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
         }, 300);
 
         return () => clearTimeout(delayDebounce);
-    }, [data.items]);
+    }, [data.items, data.address_id]);
+
+    function getMissingRequirementMessage() {
+        if (data.items.length === 0) return 'Please select at least 1 laundry service in Step 1.';
+        if (!data.address_id) return 'Please select a pickup address in Step 2.';
+        if (!data.time_slot_id) return 'Please choose a pickup date & time slot in Step 3.';
+        return null;
+    }
 
     function submitOrder(e) {
         e.preventDefault();
+        const missing = getMissingRequirementMessage();
+        if (missing) {
+            if (data.items.length === 0) {
+                document.getElementById('step-1-services')?.scrollIntoView({ behavior: 'smooth' });
+            } else if (!data.address_id) {
+                document.getElementById('step-2-address')?.scrollIntoView({ behavior: 'smooth' });
+            } else if (!data.time_slot_id) {
+                document.getElementById('step-3-slot')?.scrollIntoView({ behavior: 'smooth' });
+            }
+            return;
+        }
         post('/book');
     }
 
+    const missingMessage = getMissingRequirementMessage();
+
     return (
         <CustomerLayout>
-            <div className="grid gap-8 lg:grid-cols-3 items-start">
+            <div className="grid gap-8 lg:grid-cols-12 items-start animate-fade-in pb-12">
                 
                 {/* Left Column: 3 Wizard Steps */}
-                <div className="lg:col-span-2 space-y-8">
+                <div className="lg:col-span-7 space-y-8">
                     
-                    {/* Welcome Banner */}
-                    <div className="rounded-3xl bg-blue-600 text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl shadow-blue-200">
-                        <div>
-                            <h1 className="text-2xl font-extrabold tracking-tight">Welcome back, {customerName}</h1>
-                            <p className="mt-1.5 text-blue-100 text-sm font-semibold">Ready for a fresh start today?</p>
+                    {/* Standard Premium Hero Card */}
+                    <div className="bg-gradient-to-r from-orange-50/80 via-white to-amber-50/60 rounded-3xl p-8 sm:p-9 border border-orange-200/60 shadow-2xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative overflow-hidden">
+                        <div className="space-y-2 max-w-md relative z-10">
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#f95700] bg-white px-3.5 py-1 rounded-full border border-orange-200/80 shadow-2xs inline-flex items-center gap-1.5">
+                                <span>🧺</span> STEP-BY-STEP BOOKING
+                            </span>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
+                                Welcome back, {customerName}
+                            </h1>
+                            <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
+                                Select your items below and schedule your home pickup in minutes.
+                            </p>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 flex items-center gap-4 border border-white/10">
+                        <div className="bg-white/90 backdrop-blur-sm border border-slate-200/90 rounded-2xl p-4 flex items-center gap-4 shadow-sm relative z-10">
                             <div>
-                                <span className="text-[10px] uppercase font-bold text-blue-200 tracking-wider">Package Balance</span>
-                                <div className="text-xl font-extrabold mt-0.5">{currencySymbol}142.50</div>
+                                <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">Package Balance</span>
+                                <div className="text-xl font-black text-slate-900 mt-0.5">{currencySymbol}142.50</div>
                             </div>
-                            <button type="button" className="bg-white text-blue-600 font-extrabold text-xs px-3 py-2 rounded-xl shadow-sm hover:bg-blue-50 transition-all">
+                            <button type="button" className="bg-[#f95700] hover:bg-[#e04f00] text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-md shadow-orange-500/20 transition-all">
                                 Top Up
                             </button>
                         </div>
                     </div>
 
                     {/* Step 1: Select Services */}
-                    <div className="space-y-4">
-                        <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2.5">
-                            <span className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">1</span>
-                            <span>Select Services</span>
-                        </h2>
+                    <div className="space-y-4" id="step-1-services">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-3">
+                                <span className="h-8 w-8 rounded-full bg-[#f95700] text-white flex items-center justify-center text-xs font-black shadow-sm">1</span>
+                                <span>Select Services</span>
+                            </h2>
+                            <span className="text-xs text-slate-500 font-semibold">
+                                {data.items.reduce((sum, i) => sum + i.qty, 0)} Items Added
+                            </span>
+                        </div>
 
-                        <div className="grid gap-4 sm:grid-cols-3">
+                        {/* Standard Service Cards Grid */}
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                             {services.map((service) => {
                                 const qty = data.items.find((i) => i.service_id === service.id)?.qty || 0;
-                                const icon = SERVICE_ICONS[service.name] || SERVICE_ICONS.default;
+                                const iconEmoji = SERVICE_ICONS[service.name] || SERVICE_ICONS[service.name?.toLowerCase()] || SERVICE_ICONS.default;
+                                const formattedName = service.name ? service.name.charAt(0).toUpperCase() + service.name.slice(1) : 'Service';
 
                                 return (
                                     <div
                                         key={service.id}
-                                        className={`rounded-2xl border bg-white p-4 shadow-sm flex flex-col justify-between h-48 transition-all ${
-                                            qty > 0 ? 'border-blue-600 ring-2 ring-blue-50' : 'border-slate-200'
+                                        className={`rounded-3xl border bg-white p-5 shadow-2xs flex flex-col justify-between h-56 transition-all duration-200 group ${
+                                            qty > 0 ? 'border-2 border-[#f95700] ring-4 ring-orange-500/10 bg-orange-50/20 shadow-md' : 'border-slate-200/80 hover:border-orange-300 hover:shadow-md'
                                         }`}
                                     >
-                                        <div className="space-y-2">
-                                            <span className="inline-flex h-9 w-9 rounded-xl bg-blue-50 items-center justify-center">
-                                                {icon}
+                                        <div className="space-y-3">
+                                            <span className={`inline-flex h-12 w-12 rounded-2xl items-center justify-center text-2xl transition-transform group-hover:scale-105 ${
+                                                qty > 0 ? 'bg-orange-100 text-[#f95700] border border-orange-200' : 'bg-slate-100/80 text-slate-700 border border-slate-200/60'
+                                            }`}>
+                                                {iconEmoji}
                                             </span>
-                                            <h3 className="font-extrabold text-slate-900 text-sm">{service.name}</h3>
-                                            <p className="text-xs text-slate-400 font-semibold leading-relaxed">
-                                                Professional standard cleaning per {service.unit}.
-                                            </p>
+                                            <div>
+                                                <h3 className="font-extrabold text-slate-900 text-base leading-tight">{formattedName}</h3>
+                                                <p className="text-xs text-slate-400 font-semibold leading-relaxed mt-1">
+                                                    Professional standard cleaning per {service.unit}.
+                                                </p>
+                                            </div>
                                         </div>
 
-                                        <div className="flex items-center justify-between pt-2">
-                                            <span className="text-xs font-extrabold text-slate-700">{currencySymbol}{parseFloat(service.price).toFixed(2)}/{service.unit}</span>
+                                        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                                            <div>
+                                                <span className="text-xs font-bold text-slate-400 block text-[10px] uppercase tracking-wider">Price</span>
+                                                <span className="text-sm font-extrabold text-slate-900">
+                                                    {currencySymbol}{parseFloat(service.price).toFixed(2)}
+                                                    <span className="text-xs font-semibold text-slate-500">/{service.unit}</span>
+                                                </span>
+                                            </div>
                                             
                                             {qty > 0 ? (
-                                                <div className="flex items-center gap-2 bg-blue-50 rounded-xl p-1 border border-blue-100">
+                                                <div className="flex items-center gap-2 bg-white rounded-xl p-1 border border-orange-300 shadow-2xs">
                                                     <button
                                                         type="button"
                                                         onClick={() => handleQtyChange(service.id, -1)}
-                                                        className="h-6 w-6 bg-white rounded-lg font-bold text-blue-600 flex items-center justify-center text-xs"
+                                                        className="h-7 w-7 bg-orange-100 hover:bg-orange-200 rounded-lg font-black text-[#f95700] flex items-center justify-center text-xs transition-colors"
                                                     >
                                                         -
                                                     </button>
-                                                    <span className="font-bold text-xs text-slate-800 px-1">{qty}</span>
+                                                    <span className="font-black text-sm text-slate-900 px-2">{qty}</span>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleQtyChange(service.id, 1)}
-                                                        className="h-6 w-6 bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center text-xs"
+                                                        className="h-7 w-7 bg-[#f95700] hover:bg-[#e04f00] text-white rounded-lg font-black flex items-center justify-center text-xs shadow-2xs transition-colors"
                                                     >
                                                         +
                                                     </button>
@@ -232,9 +269,9 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                                 <button
                                                     type="button"
                                                     onClick={() => handleQtyChange(service.id, 1)}
-                                                    className="rounded-xl border border-slate-200 hover:border-blue-600 bg-white px-4 py-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 transition-all"
+                                                    className="rounded-xl border border-orange-200 bg-orange-50/80 hover:bg-[#f95700] text-[#f95700] hover:text-white font-extrabold text-xs px-4 py-2 shadow-2xs transition-all duration-200"
                                                 >
-                                                    Add
+                                                    + Add
                                                 </button>
                                             )}
                                         </div>
@@ -245,16 +282,16 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                     </div>
 
                     {/* Step 2: Pickup Address */}
-                    <div className="space-y-4">
+                    <div className="space-y-4" id="step-2-address">
                         <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2.5">
-                            <span className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+                            <span className="h-7 w-7 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs font-black shadow-sm">2</span>
                             <span>Pickup Address</span>
                         </h2>
 
                         {addresses.length === 0 ? (
                             <div className="rounded-3xl border-2 border-dashed border-slate-200 bg-white p-8 text-center">
                                 <p className="text-xs text-slate-400 font-bold mb-3">Please save an address to continue.</p>
-                                <Link href="/addresses" className="rounded-xl bg-blue-600 text-white px-4 py-2 text-xs font-bold shadow-sm">
+                                <Link href="/addresses" className="rounded-xl bg-orange-600 hover:bg-orange-700 text-white px-4 py-2.5 text-xs font-bold shadow-sm inline-block">
                                     + Add New Address
                                 </Link>
                             </div>
@@ -268,24 +305,26 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                             type="button"
                                             onClick={() => handleSelectAddress(addr)}
                                             className={`text-left w-full rounded-2xl border p-5 bg-white shadow-sm flex items-start gap-4 transition-all relative ${
-                                                selected ? 'border-blue-600 ring-2 ring-blue-50' : 'border-slate-200 hover:border-slate-300'
+                                                selected ? 'border-orange-600 ring-4 ring-orange-500/10' : 'border-slate-200 hover:border-slate-300'
                                             }`}
                                         >
-                                            <span className="inline-flex h-9 w-9 rounded-xl bg-slate-100 items-center justify-center text-slate-500 mt-0.5">
+                                            <span className={`inline-flex h-9 w-9 rounded-xl items-center justify-center mt-0.5 ${
+                                                selected ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-slate-100 text-slate-500'
+                                            }`}>
                                                 ⌂
                                             </span>
                                             <div className="space-y-1 pr-6">
                                                 <h3 className="font-extrabold text-slate-900 text-sm">{addr.label}</h3>
-                                                <p className="text-xs text-slate-500 font-semibold leading-relaxed">Saved Address</p>
-                                                <p className="text-xs text-slate-400 font-semibold uppercase">{addr.postcode}</p>
+                                                <p className="text-xs text-slate-500 font-semibold leading-relaxed">Saved Location</p>
+                                                <p className="text-xs text-slate-400 font-extrabold uppercase tracking-wide">{addr.postcode}</p>
                                                 {addr.directions && (
-                                                    <p className="text-[10px] text-slate-400 font-medium italic mt-1 font-mono">
+                                                    <p className="text-[10px] text-slate-400 font-medium italic mt-1">
                                                         "{addr.directions}"
                                                     </p>
                                                 )}
                                             </div>
                                             <span className={`absolute right-4 top-5 h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-                                                selected ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300'
+                                                selected ? 'border-orange-600 bg-orange-600 text-white' : 'border-slate-300'
                                             }`}>
                                                 {selected && <span className="h-2 w-2 rounded-full bg-white"></span>}
                                             </span>
@@ -294,23 +333,28 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                 })}
                             </div>
                         )}
-                        <Link href="/addresses" className="inline-block text-xs font-bold text-blue-600 hover:text-blue-700">
+                        <Link href="/addresses" className="inline-block text-xs font-bold text-orange-600 hover:text-orange-700">
                             + Add New Address
                         </Link>
                     </div>
 
                     {/* Step 3: Schedule Pickup */}
-                    <div className="space-y-4">
+                    <div className="space-y-4" id="step-3-slot">
                         <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2.5">
-                            <span className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+                            <span className="h-7 w-7 rounded-full bg-orange-600 text-white flex items-center justify-center text-xs font-black shadow-sm">3</span>
                             <span>Schedule Pickup</span>
                         </h2>
 
-                        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-6">
+                        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
                             
                             {/* Horizontal calendar date picker */}
                             {uniqueDates.length === 0 ? (
-                                <p className="text-xs text-slate-400 font-semibold text-center">No time slot dates available for this area.</p>
+                                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center text-amber-900 space-y-1">
+                                    <p className="text-xs font-bold">⚠️ No Pickup Slots Available For This Area</p>
+                                    <p className="text-[11px] text-amber-800 font-medium">
+                                        Our pickup service is not yet available for postcode <span className="font-bold uppercase">{selectedAddress?.postcode}</span>. Please choose another saved address or add an address in an active service area.
+                                    </p>
+                                </div>
                             ) : (
                                 <div className="flex gap-2.5 overflow-x-auto pb-1">
                                     {uniqueDates.map((dateString) => {
@@ -325,13 +369,13 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                                     setSelectedDate(dateString);
                                                     setData('time_slot_id', ''); // reset selected window
                                                 }}
-                                                className={`rounded-2xl border p-3.5 flex flex-col items-center justify-center min-w-[70px] text-center transition-all ${
+                                                className={`rounded-2xl border p-3.5 flex flex-col items-center justify-center min-w-[72px] text-center transition-all ${
                                                     active 
-                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100'
+                                                        ? 'bg-orange-600 border-orange-600 text-white shadow-md shadow-orange-100'
                                                         : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700'
                                                 }`}
                                             >
-                                                <span className={`text-[10px] font-extrabold ${active ? 'text-blue-100' : 'text-slate-400'}`}>
+                                                <span className={`text-[10px] font-extrabold uppercase ${active ? 'text-orange-100' : 'text-slate-400'}`}>
                                                     {weekday}
                                                 </span>
                                                 <span className="text-base font-extrabold mt-1">{day}</span>
@@ -347,7 +391,6 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                     {slotsForDate.map((slot) => {
                                         const active = data.time_slot_id === slot.id;
                                         const full = slot.capacity <= 0;
-                                        // Fake progress bar capacity
                                         const bookedPercent = Math.max(10, Math.min(90, 100 - (slot.capacity * 10)));
 
                                         return (
@@ -358,14 +401,14 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                                 onClick={() => setData('time_slot_id', slot.id)}
                                                 className={`text-left w-full rounded-2xl border p-4 transition-all relative ${
                                                     active 
-                                                        ? 'bg-blue-50/50 border-blue-600 ring-2 ring-blue-50' 
+                                                        ? 'bg-orange-50/50 border-orange-600 ring-4 ring-orange-500/10' 
                                                         : 'bg-white border-slate-200 hover:border-slate-300'
                                                 } ${full ? 'opacity-40 cursor-not-allowed' : ''}`}
                                             >
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2.5">
-                                                        <span className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                                                            active ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'
+                                                        <span className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                                                            active ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'
                                                         }`}>
                                                             ⏰
                                                         </span>
@@ -374,13 +417,13 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                                             <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{slot.capacity} slots left</p>
                                                         </div>
                                                     </div>
-                                                    <span className={`text-[10px] font-extrabold ${active ? 'text-blue-700' : 'text-slate-400'}`}>
+                                                    <span className={`text-[10px] font-extrabold ${active ? 'text-orange-700' : 'text-slate-400'}`}>
                                                         {bookedPercent}% Booked
                                                     </span>
                                                 </div>
 
                                                 <div className="mt-3.5 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                                    <div className={`h-full rounded-full ${active ? 'bg-blue-600' : 'bg-slate-400'}`} style={{ width: `${bookedPercent}%` }}></div>
+                                                    <div className={`h-full rounded-full ${active ? 'bg-orange-600' : 'bg-slate-400'}`} style={{ width: `${bookedPercent}%` }}></div>
                                                 </div>
                                             </button>
                                         );
@@ -391,28 +434,30 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                     </div>
                 </div>
 
-                {/* Right Column: Order Summary & Placement Details (1 column) */}
-                <div className="space-y-6 lg:sticky lg:top-24">
+                {/* Right Column: Order Summary & Placement Details (Enlarged) */}
+                <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
                     
-                    {/* Order Summary box */}
-                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
-                        <h3 className="text-base font-extrabold text-slate-950 tracking-tight">Order Summary</h3>
+                    {/* Order Summary Box */}
+                    <div className="rounded-3xl border border-slate-200/80 bg-white p-7 sm:p-8 shadow-2xs space-y-6">
+                        <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Order Summary</h3>
 
                         {data.items.length === 0 ? (
-                            <p className="text-xs text-slate-400 font-semibold text-center py-6">Your basket is empty. Please select services on the left.</p>
+                            <p className="text-xs sm:text-sm text-slate-400 font-semibold text-center py-8">
+                                Your basket is empty. Please select services on the left.
+                            </p>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-5">
                                 {/* Selected Services list */}
-                                <div className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
+                                <div className="divide-y divide-slate-100 text-xs sm:text-sm font-semibold text-slate-600">
                                     {data.items.map((item) => {
                                         const s = services.find((srv) => srv.id === item.service_id);
                                         return (
-                                            <div key={item.service_id} className="py-2.5 flex justify-between items-center">
+                                            <div key={item.service_id} className="py-3 flex justify-between items-center">
                                                 <div>
-                                                    <p className="text-slate-900 font-bold">{s.name}</p>
-                                                    <p className="text-slate-400 text-[10px] font-semibold mt-0.5">{item.qty} x {currencySymbol}{parseFloat(s.price).toFixed(2)}</p>
+                                                    <p className="text-slate-900 font-extrabold text-sm sm:text-base">{s?.name}</p>
+                                                    <p className="text-slate-400 text-xs font-semibold mt-0.5">{item.qty} x {currencySymbol}{parseFloat(s?.price || 0).toFixed(2)}</p>
                                                 </div>
-                                                <span className="text-slate-900 font-bold">{currencySymbol}{parseFloat(s.price * item.qty).toFixed(2)}</span>
+                                                <span className="text-slate-900 font-extrabold text-sm sm:text-base">{currencySymbol}{parseFloat((s?.price || 0) * item.qty).toFixed(2)}</span>
                                             </div>
                                         );
                                     })}
@@ -420,9 +465,9 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
 
                                 {/* Estimate details */}
                                 {estimating ? (
-                                    <p className="text-xs text-indigo-600 font-bold text-center py-2">Calculating total estimates...</p>
+                                    <p className="text-xs font-bold text-[#f95700] text-center py-2">Calculating total estimates...</p>
                                 ) : estimate ? (
-                                    <div className="pt-4 border-t border-slate-100 text-xs font-semibold text-slate-500 space-y-3">
+                                    <div className="pt-4 border-t border-slate-100 text-xs sm:text-sm font-semibold text-slate-500 space-y-3">
                                         <div className="flex justify-between">
                                             <span>Subtotal</span>
                                             <span className="text-slate-900 font-bold">{currencySymbol}{parseFloat(estimate.subtotal).toFixed(2)}</span>
@@ -435,28 +480,28 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                             <span>Delivery Fee</span>
                                             <span className="text-slate-900 font-bold">{currencySymbol}{parseFloat(estimate.delivery_fee).toFixed(2)}</span>
                                         </div>
-                                        <div className="flex justify-between pt-3 border-t border-slate-100 text-sm">
+                                        <div className="flex justify-between pt-3 border-t border-slate-100 text-base">
                                             <span className="text-slate-950 font-extrabold">Total Amount</span>
-                                            <span className="text-blue-600 font-extrabold">{currencySymbol}{parseFloat(estimate.total).toFixed(2)}</span>
+                                            <span className="text-[#f95700] font-black">{currencySymbol}{parseFloat(estimate.total).toFixed(2)}</span>
                                         </div>
                                     </div>
                                 ) : null}
 
                                 {/* Payment Method display */}
-                                <div className="border border-slate-200 bg-slate-50/50 rounded-2xl p-4 flex items-center justify-between text-xs font-bold">
-                                    <div className="flex items-center gap-2.5">
-                                        <span>💳</span>
+                                <div className="border border-slate-200/80 bg-slate-50/70 rounded-2xl p-4 flex items-center justify-between text-xs sm:text-sm font-bold shadow-2xs">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-lg">💳</span>
                                         <div>
-                                            <p className="text-slate-900 font-extrabold">Payment Method</p>
-                                            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Package Credit (Balance: {currencySymbol}142.50)</p>
+                                            <p className="text-slate-900 font-extrabold text-xs sm:text-sm">Payment Method</p>
+                                            <p className="text-xs text-slate-500 font-medium mt-0.5">Package Credit (Balance: {currencySymbol}142.50)</p>
                                         </div>
                                     </div>
-                                    <span className="text-slate-400">›</span>
+                                    <span className="text-slate-400 font-bold text-sm">›</span>
                                 </div>
 
                                 {/* Order Notes input */}
                                 <div className="space-y-1.5">
-                                    <label htmlFor="note" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <label htmlFor="note" className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">
                                         Special Note / Instructions
                                     </label>
                                     <textarea
@@ -465,57 +510,91 @@ export default function Book({ services, addresses, timeSlots, reorderItems }) {
                                         value={data.note}
                                         onChange={(e) => setData('note', e.target.value)}
                                         placeholder="Add notes for collection driver..."
-                                        className="w-full bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-2 px-3 text-xs font-semibold text-slate-800 focus:outline-none"
+                                        className="w-full bg-slate-50 border border-slate-200 focus:border-[#f95700] focus:ring-4 focus:ring-orange-100 rounded-xl py-3 px-3.5 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none transition-all"
                                     />
-                                    {errors.note && <p className="text-xs text-rose-600 font-bold mt-1">{errors.note}</p>}
-                                    {errors.address_id && <p className="text-xs text-rose-600 font-bold mt-1">Please select an address.</p>}
-                                    {errors.time_slot_id && <p className="text-xs text-rose-600 font-bold mt-1">Please choose a pickup slot.</p>}
                                 </div>
+
+                                {/* User Guidance Notice Box */}
+                                {missingMessage ? (
+                                    <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-xs sm:text-sm font-semibold text-amber-900 flex items-start gap-3 shadow-2xs animate-fade-in">
+                                        <span className="text-amber-600 font-bold shrink-0 text-base">💡</span>
+                                        <div>
+                                            <p className="font-extrabold text-amber-950">Next Step Required:</p>
+                                            <p className="mt-0.5 text-amber-800 font-medium">{missingMessage}</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-xs sm:text-sm font-semibold text-emerald-900 flex items-center gap-2.5 animate-fade-in shadow-2xs">
+                                        <span className="text-emerald-600 font-bold text-base">✓</span>
+                                        <span>All details complete! Click below to place your order.</span>
+                                    </div>
+                                )}
+
+                                {/* Server Errors Display */}
+                                {(errors.error || errors.address_id || errors.time_slot_id || errors.items || errors.note) && (
+                                    <div className="rounded-2xl border border-rose-200 bg-rose-50/80 p-4 text-xs sm:text-sm font-semibold text-rose-900 flex items-start gap-2.5 animate-fade-in shadow-2xs">
+                                        <span className="text-rose-600 font-bold shrink-0 text-base">✕</span>
+                                        <div>
+                                            <p className="font-extrabold text-rose-950">Cannot Place Order:</p>
+                                            <p className="mt-0.5 text-rose-800 font-medium">
+                                                {errors.error || errors.address_id || errors.time_slot_id || errors.items || errors.note}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Place Order Button */}
                                 <button
                                     type="button"
                                     onClick={submitOrder}
-                                    disabled={processing || data.items.length === 0 || !data.address_id || !data.time_slot_id}
+                                    disabled={processing}
                                     id="btn-place-order"
-                                    className="w-full rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3.5 shadow-lg shadow-blue-200 transition-all duration-150 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 text-sm flex items-center justify-center gap-2"
+                                    className={`w-full rounded-2xl text-white font-extrabold py-4 shadow-lg transition-all duration-150 text-sm sm:text-base flex items-center justify-center gap-2 ${
+                                        missingMessage 
+                                            ? 'bg-[#f95700]/90 hover:bg-[#f95700] shadow-orange-500/20 cursor-pointer' 
+                                            : 'bg-[#f95700] hover:bg-[#e04f00] shadow-orange-500/25 hover:scale-[1.01] active:scale-[0.99]'
+                                    }`}
                                 >
-                                    <span>Place Order</span>
-                                    <span>→</span>
+                                    <span>
+                                        {processing 
+                                            ? 'Placing Order...' 
+                                            : missingMessage 
+                                            ? missingMessage.replace('Please ', '') 
+                                            : 'Place Order →'}
+                                    </span>
                                 </button>
                             </div>
                         )}
                     </div>
 
-                    {/* What happens next timeline */}
-                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-                        <h4 className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">What Happens Next?</h4>
-                        <div className="relative border-l border-slate-100 pl-5 space-y-5 ml-2.5">
+                    {/* What Happens Next Timeline (Enlarged) */}
+                    <div className="rounded-3xl border border-slate-200/80 bg-white p-7 sm:p-8 shadow-2xs space-y-5">
+                        <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">WHAT HAPPENS NEXT?</h4>
+                        <div className="relative border-l-2 border-slate-100 pl-6 space-y-6 ml-3">
                             <div className="relative">
-                                <span className="absolute -left-7 top-0.5 h-4.5 w-4.5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px]">📍</span>
-                                <div>
-                                    <p className="text-xs font-extrabold text-slate-900">Driver Arrives</p>
-                                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Collects your laundry bag on time.</p>
+                                <span className="absolute -left-9 top-0.5 h-6 w-6 rounded-full bg-orange-100 text-[#f95700] flex items-center justify-center text-xs font-bold shadow-2xs">📍</span>
+                                <div className="space-y-0.5">
+                                    <p className="text-sm sm:text-base font-extrabold text-slate-900">Driver Arrives</p>
+                                    <p className="text-xs text-slate-500 font-medium">Collects your laundry bag on time.</p>
                                 </div>
                             </div>
                             <div className="relative">
-                                <span className="absolute -left-7 top-0.5 h-4.5 w-4.5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px]">⚙</span>
-                                <div>
-                                    <p className="text-xs font-extrabold text-slate-900">Processing</p>
-                                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Sanitizing, washing, and folding.</p>
+                                <span className="absolute -left-9 top-0.5 h-6 w-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold shadow-2xs">⚙</span>
+                                <div className="space-y-0.5">
+                                    <p className="text-sm sm:text-base font-extrabold text-slate-900">Processing</p>
+                                    <p className="text-xs text-slate-500 font-medium">Sanitizing, washing, and folding.</p>
                                 </div>
                             </div>
                             <div className="relative">
-                                <span className="absolute -left-7 top-0.5 h-4.5 w-4.5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[10px]">✓</span>
-                                <div>
-                                    <p className="text-xs font-extrabold text-slate-900">Delivered</p>
-                                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Fresh items returned to your doorstep.</p>
+                                <span className="absolute -left-9 top-0.5 h-6 w-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold shadow-2xs">✓</span>
+                                <div className="space-y-0.5">
+                                    <p className="text-sm sm:text-base font-extrabold text-slate-900">Delivered</p>
+                                    <p className="text-xs text-slate-500 font-medium">Fresh items returned to your doorstep.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </CustomerLayout>
     );
